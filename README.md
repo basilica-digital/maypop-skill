@@ -20,10 +20,55 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 
 ## Install
 
-The repository root is the skill directory. Install the tagged release into the
-personal skills directory for your harness.
+The recommended installer is the community-maintained
+[`skills` CLI](https://github.com/vercel-labs/skills). It discovers the
+`maypop-app` skill at this repository's root and can keep the installation up
+to date.
 
-### Codex
+Install it globally for Codex:
+
+```sh
+npx skills add basilica-digital/maypop-skill \
+  --skill maypop-app \
+  --global \
+  --agent codex
+```
+
+Install the same managed copy for both Codex and Claude Code:
+
+```sh
+npx skills add basilica-digital/maypop-skill \
+  --skill maypop-app \
+  --global \
+  --agent codex \
+  --agent claude-code
+```
+
+Update a global installation later with:
+
+```sh
+npx skills update maypop-app --global
+```
+
+Use `npx skills list` to inspect installed skills. In Codex, run `/skills` or
+type `$maypop-app` to verify discovery. In Claude Code, invoke
+`/maypop-app`. Restart the harness if a new or updated skill does not appear.
+
+### Project-scoped installation
+
+Omit `--global` to install into the current project. Select one or more target
+agents as needed:
+
+```sh
+npx skills add basilica-digital/maypop-skill \
+  --skill maypop-app \
+  --agent codex
+```
+
+### Pinned manual installation
+
+To pin an exact release without the third-party installer, clone the tag into
+the personal skill directory for the harness. For Codex:
 
 ```sh
 mkdir -p ~/.agents/skills
@@ -32,35 +77,8 @@ git clone --branch v1.1.0 --depth 1 \
   ~/.agents/skills/maypop-app
 ```
 
-OpenAI's `$skill-installer` can also install the repository for personal use.
-Run `/skills` or type `$maypop-app` to verify discovery. Codex normally detects
-new skills automatically; restart it if the skill does not appear.
-
-### Claude Code
-
-```sh
-mkdir -p ~/.claude/skills
-git clone --branch v1.1.0 --depth 1 \
-  https://github.com/basilica-digital/maypop-skill.git \
-  ~/.claude/skills/maypop-app
-```
-
-Invoke it explicitly with `/maypop-app`, or let Claude select it when a request
-matches its description. Restart Claude Code if the skills directory did not
-exist when the session started.
-
-### Project-scoped installation
-
-To share the skill with a repository instead, place the same folder at the
-harness-specific project path and commit it or add it as a Git submodule:
-
-```text
-Codex:       <project>/.agents/skills/maypop-app/
-Claude Code: <project>/.claude/skills/maypop-app/
-```
-
-Other Agent Skills-compatible harnesses use their own discovery paths. Point
-the harness at the directory containing `SKILL.md`, not only at `references/`.
+For Claude Code, use `~/.claude/skills/maypop-app` instead. Manually cloned
+copies are updated with Git rather than `npx skills update`.
 
 ## Use
 
