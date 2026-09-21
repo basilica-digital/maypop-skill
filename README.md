@@ -20,21 +20,47 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 
 ## Install
 
-Clone or download this repository, then copy or symlink the repository folder into your harness's skill directory under the name `maypop-app`:
+The repository root is the skill directory. Install the tagged release into the
+personal skills directory for your harness.
+
+### Codex
 
 ```sh
-git clone <repository-url> maypop-app
+mkdir -p ~/.agents/skills
+git clone --branch v1.0.0 --depth 1 \
+  https://github.com/basilica-digital/maypop-skill.git \
+  ~/.agents/skills/maypop-app
 ```
 
-Skill discovery locations vary by harness. Point the harness at the directory containing `SKILL.md`; do not point it only at `references/`.
+OpenAI's `$skill-installer` can also install the repository for personal use.
+Run `/skills` or type `$maypop-app` to verify discovery. Codex normally detects
+new skills automatically; restart it if the skill does not appear.
 
-For repository-scoped harnesses that follow the common Agent Skills layout, place it at:
+### Claude Code
+
+```sh
+mkdir -p ~/.claude/skills
+git clone --branch v1.0.0 --depth 1 \
+  https://github.com/basilica-digital/maypop-skill.git \
+  ~/.claude/skills/maypop-app
+```
+
+Invoke it explicitly with `/maypop-app`, or let Claude select it when a request
+matches its description. Restart Claude Code if the skills directory did not
+exist when the session started.
+
+### Project-scoped installation
+
+To share the skill with a repository instead, place the same folder at the
+harness-specific project path and commit it or add it as a Git submodule:
 
 ```text
-<project>/.agents/skills/maypop-app/
+Codex:       <project>/.agents/skills/maypop-app/
+Claude Code: <project>/.claude/skills/maypop-app/
 ```
 
-For a user-wide installation, consult the harness's documentation for its personal skills directory and place the same folder there.
+Other Agent Skills-compatible harnesses use their own discovery paths. Point
+the harness at the directory containing `SKILL.md`, not only at `references/`.
 
 ## Use
 
