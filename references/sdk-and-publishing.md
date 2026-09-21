@@ -49,26 +49,9 @@ Do not replace shared or cross-device state with `localStorage`. Local browser s
 
 For per-user data, use the app-scoped viewer id in the key design and provide a saved-data policy that restricts access as intended. Never assume an app-owned store is private to the writer merely because the key contains a user id.
 
-## Publishing with the CLI
+## Build compatibility
 
-The project configuration is `maypop.toml`:
-
-```toml
-[app]
-name = "My app"
-description = "What this app does"
-visibility = "private"
-link_access = "request"
-allow_remixing = true
-tags = []
-
-[build]
-framework = "vite"
-```
-
-The app table describes metadata. Applying metadata and publishing code are separate operations. The build table selects how the CLI produces static output.
-
-Current adapters include Vite, Rsbuild, Next.js static export, and plain static files. Custom build command, output directory, and entry file can override adapter defaults.
+Maypop publishes static output. Current CLI adapters include Vite, Rsbuild, Next.js static export, and plain static files. Read [cli.md](cli.md) for authentication, initialization, `maypop.toml`, metadata application, profiles, and publication commands.
 
 For Next.js, the production configuration must use static export:
 
@@ -79,16 +62,6 @@ const nextConfig = {
 ```
 
 The expected output is static files, normally under `out/`. A `.next` server build is not publishable as a Maypop app. Route handlers, server actions, SSR, middleware, and other server-runtime features must be removed, replaced, or hosted elsewhere.
-
-The normal CLI lifecycle is conceptually:
-
-1. Authenticate the CLI.
-2. Initialize the project and app identity.
-3. Commit a clean Git revision.
-4. Build static output.
-5. Publish it as the next immutable app version.
-
-Do not run remote or state-changing steps without the user's authorization.
 
 ## Compatibility decision
 

@@ -14,6 +14,7 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 - Compatibility assessment for existing applications.
 - Migration of common backend responsibilities to Maypop services.
 - `maypop.toml`, static framework builds, and publishing concepts.
+- CLI authentication, `maypop init`, metadata application, publication, and optional profiles.
 - The boundary between Maypop-native capabilities and a separately hosted backend.
 
 ## Install
@@ -43,6 +44,8 @@ Invoke `maypop-app` explicitly if the harness supports named skill invocation, o
 - “Assess this Next.js application for Maypop compatibility.”
 - “Replace this app's authentication and database with Maypop services.”
 - “Prepare this Vite application for Maypop publishing.”
+- “Authenticate the Maypop CLI and initialize this repository.”
+- “Update this app's metadata from `maypop.toml` and publish a version.”
 
 The skill intentionally avoids harness-specific tools and commands. For exact SDK implementation, it instructs the harness to inspect the current local `maypop-sdk` declarations instead of guessing from a possibly stale summary.
 
@@ -55,6 +58,7 @@ maypop-skill/
 ├── LICENSE
 └── references/
     ├── app-model.md
+    ├── cli.md
     ├── host-environment.md
     └── sdk-and-publishing.md
 ```
