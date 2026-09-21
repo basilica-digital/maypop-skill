@@ -4,7 +4,7 @@ Use this reference for architecture, implementation planning, compatibility asse
 
 ## SDK lifecycle
 
-Maypop's browser SDK is available through the `maypop-sdk` package or the hosted browser script, depending on the project. Both forms expose the same `window.maypop` object.
+Maypop's browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted browser script, depending on the project. Both forms expose the same `window.maypop` object.
 
 Always wait for the host handshake:
 
@@ -16,7 +16,7 @@ Only then read identity, mode, permissions, theme, or other capabilities. The se
 
 This differs from the local framework sandbox described below. Studio preview is attached to real Maypop services; the local sandbox uses development-only identity, KV, and Drive data on the developer's machine.
 
-Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, inspect the installed `maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
+Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, inspect the installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
 
 ## Capability map
 
@@ -53,18 +53,18 @@ For per-user data, use the app-scoped viewer id in the key design and provide a 
 
 ## Develop with the local sandbox
 
-The `maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, KV, and Drive through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for this local loop.
+The `@basilica-digital/maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, KV, and Drive through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for this local loop.
 
-Install `maypop-sdk` with the project's package manager. Keep it as an application dependency when browser code imports it:
+Install `@basilica-digital/maypop-sdk` from npm with the project's package manager. Keep it as an application dependency when browser code imports it:
 
 ```sh
-pnpm add maypop-sdk
+pnpm add @basilica-digital/maypop-sdk
 ```
 
 Application code does not need a sandbox branch:
 
 ```ts
-import { maypop } from "maypop-sdk";
+import { maypop } from "@basilica-digital/maypop-sdk";
 
 await maypop.ready();
 const records = await maypop.kv.list({ prefix: "record/" });
@@ -75,7 +75,7 @@ Configure the matching development host.
 ### Vite
 
 ```ts
-import { maypop } from "maypop-sdk/vite";
+import { maypop } from "@basilica-digital/maypop-sdk/vite";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -87,7 +87,7 @@ export default defineConfig({
 
 ```ts
 import { defineConfig } from "@rsbuild/core";
-import { maypop } from "maypop-sdk/rsbuild";
+import { maypop } from "@basilica-digital/maypop-sdk/rsbuild";
 
 export default defineConfig({
   plugins: [maypop()],
@@ -97,7 +97,7 @@ export default defineConfig({
 ### Next.js
 
 ```ts
-import { withMaypop } from "maypop-sdk/next";
+import { withMaypop } from "@basilica-digital/maypop-sdk/next";
 
 export default withMaypop({
   output: "export",
