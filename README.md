@@ -27,7 +27,7 @@ personal skills directory for your harness.
 
 ```sh
 mkdir -p ~/.agents/skills
-git clone --branch v1.0.0 --depth 1 \
+git clone --branch v1.1.0 --depth 1 \
   https://github.com/basilica-digital/maypop-skill.git \
   ~/.agents/skills/maypop-app
 ```
@@ -40,7 +40,7 @@ new skills automatically; restart it if the skill does not appear.
 
 ```sh
 mkdir -p ~/.claude/skills
-git clone --branch v1.0.0 --depth 1 \
+git clone --branch v1.1.0 --depth 1 \
   https://github.com/basilica-digital/maypop-skill.git \
   ~/.claude/skills/maypop-app
 ```

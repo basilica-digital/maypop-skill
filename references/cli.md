@@ -172,13 +172,13 @@ framework = "vite"
 
 ### `[app]`: remote app metadata
 
-- `name`: non-empty app name.
-- `description`: listing or detail description.
+- `name`: use the agreed brand name, or a few concrete words in sentence case; do not silently invent a brand.
+- `description`: aim for one concise sentence of roughly 140 characters covering what the app does and its clearest value or audience.
 - `visibility`: `private`, `unlisted`, or `public`.
 - `link_access`: `request`, `view`, or `use`; the backend validates it together with visibility.
 - `allow_remixing`: whether others may create a new app derived from this one.
-- `tags`: string list.
-- `thumbnail`: repository-relative image path; it must remain inside the repository.
+- `tags`: use at most one current store category id: `education`, `social`, `productivity`, `games`, `entertainment`, `design`, `music`, `family`, `travel`, `sports`, or `fitness`. Maypop reads the first tag as the category, so do not add invented or SEO-style tags.
+- `thumbnail`: repository-relative image path; it must remain inside the repository. Use a full-bleed 4:3 cover, preferably a 2048x1536 source or a 1200x900 optimized asset. When an image-generation skill is available, prefer purpose-made cover art over a placeholder, icon, or UI screenshot; see the thumbnail guidance in `SKILL.md`.
 
 `maypop init` starts private and unlisted apps at `link_access = "request"`; public apps start at `link_access = "view"`. Not every reach pair is valid—for example, a publicly listed app cannot use `request` link access.
 
