@@ -74,4 +74,4 @@ Update the references when Maypop's product model changes. Keep exact method sig
 
 ## License
 
-MIT
+Apache-2.0

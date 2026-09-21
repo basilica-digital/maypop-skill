@@ -1,7 +1,7 @@
 ---
 name: maypop-app
 description: Explain, assess, design, develop, adapt, or publish web applications for Maypop's static runtime, platform SDK, local framework sandbox, and `maypop` CLI. Use when a user asks what a Maypop app is, whether an existing project is compatible, how Maypop's BaaS works, how to test SDK capabilities locally, how to use `maypop.toml`, or how to install, authenticate, initialize, configure, or publish with the CLI. Do not use for unrelated flower questions or for development of Maypop's own platform internals.
-license: MIT
+license: Apache-2.0
 ---
 
 # Maypop apps
