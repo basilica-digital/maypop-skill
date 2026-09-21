@@ -1,6 +1,6 @@
 ---
 name: maypop-app
-description: Explain, assess, design, adapt, or publish web applications for Maypop's static runtime, platform SDK, and `maypop` CLI. Use when a user asks what a Maypop app is, whether an existing project is compatible, how Maypop's BaaS works, how to use `maypop.toml`, or how to authenticate, initialize, configure, or publish with the CLI. Do not use for unrelated flower questions or for development of Maypop's own platform internals.
+description: Explain, assess, design, develop, adapt, or publish web applications for Maypop's static runtime, platform SDK, local framework sandbox, and `maypop` CLI. Use when a user asks what a Maypop app is, whether an existing project is compatible, how Maypop's BaaS works, how to test SDK capabilities locally, how to use `maypop.toml`, or how to authenticate, initialize, configure, or publish with the CLI. Do not use for unrelated flower questions or for development of Maypop's own platform internals.
 license: MIT
 ---
 
@@ -23,7 +23,7 @@ Do not call every Maypop app “full stack.” A standalone static app may use n
 - For an explanation, distinguish app code, the Maypop host, and Maypop platform services. Correct misconceptions directly.
 - For compatibility assessment, inspect the supplied project and classify it as already compatible, convertible, or dependent on a separate backend.
 - For interface or product design, read [references/host-environment.md](references/host-environment.md) so the app complements Maypop's authentication and surrounding chrome instead of duplicating them.
-- For architecture or implementation, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md).
+- For architecture, implementation, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Prefer the `maypop-sdk` framework sandbox for Vite, Rsbuild, and Next.js projects that need to exercise identity, KV, or Drive before deployment.
 - For CLI authentication, initialization, `maypop.toml`, metadata, profiles, or publishing, read [references/cli.md](references/cli.md). Use the installed command's `--help` output as the final authority on available flags.
 - For exact SDK code, inspect the current `maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
 - For publication, inspect `maypop.toml`, framework configuration, Git state, and build output. Authentication, initialization, metadata application, and publication change local or remote state; do not run them without explicit authorization.

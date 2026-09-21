@@ -10,6 +10,7 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 - Host-owned authentication and desktop/mobile application chrome.
 - Static bundle and sandboxed iframe constraints.
 - Identity, permissions, KV, Drive, AI, agents, members, multiplayer, MCP, sharing, and notifications.
+- Local Vite, Rsbuild, and Next.js sandbox setup for testing identity, KV, and Drive without deploying.
 - App-owned data, audiences, versions, iterations, and remixes.
 - Compatibility assessment for existing applications.
 - Migration of common backend responsibilities to Maypop services.
@@ -44,6 +45,7 @@ Invoke `maypop-app` explicitly if the harness supports named skill invocation, o
 - “Assess this Next.js application for Maypop compatibility.”
 - “Replace this app's authentication and database with Maypop services.”
 - “Prepare this Vite application for Maypop publishing.”
+- “Add the local Maypop sandbox to this Rsbuild app.”
 - “Authenticate the Maypop CLI and initialize this repository.”
 - “Update this app's metadata from `maypop.toml` and publish a version.”
 

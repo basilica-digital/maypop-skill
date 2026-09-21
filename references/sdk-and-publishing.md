@@ -14,6 +14,8 @@ await maypop.ready();
 
 Only then read identity, mode, permissions, theme, or other capabilities. The session is real in Studio preview as well as in a published app; preview writes are not disposable mocks.
 
+This differs from the local framework sandbox described below. Studio preview is attached to real Maypop services; the local sandbox uses development-only identity, KV, and Drive data on the developer's machine.
+
 Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, inspect the installed `maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
 
 ## Capability map
@@ -49,6 +51,89 @@ Do not replace shared or cross-device state with `localStorage`. Local browser s
 
 For per-user data, use the app-scoped viewer id in the key design and provide a saved-data policy that restricts access as intended. Never assume an app-owned store is private to the writer merely because the key contains a user id.
 
+## Develop with the local sandbox
+
+The `maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, KV, and Drive through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for this local loop.
+
+Install `maypop-sdk` with the project's package manager. Keep it as an application dependency when browser code imports it:
+
+```sh
+pnpm add maypop-sdk
+```
+
+Application code does not need a sandbox branch:
+
+```ts
+import { maypop } from "maypop-sdk";
+
+await maypop.ready();
+const records = await maypop.kv.list({ prefix: "record/" });
+```
+
+Configure the matching development host.
+
+### Vite
+
+```ts
+import { maypop } from "maypop-sdk/vite";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  plugins: [maypop()],
+});
+```
+
+### Rsbuild
+
+```ts
+import { defineConfig } from "@rsbuild/core";
+import { maypop } from "maypop-sdk/rsbuild";
+
+export default defineConfig({
+  plugins: [maypop()],
+});
+```
+
+### Next.js
+
+```ts
+import { withMaypop } from "maypop-sdk/next";
+
+export default withMaypop({
+  output: "export",
+});
+```
+
+`withMaypop` adds its proxy only during `next dev`; production builds retain the static-export configuration. The Vite and Rsbuild plugins likewise apply only to their development servers. Run the framework's normal development command and open its normal URL. The local Maypop host wraps the app and preserves routed deep links.
+
+The default sandbox viewer is a synthetic signed-in admin named `Developer`. Local state persists across server restarts in:
+
+- `.maypop/config.json` for the generated app and viewer identity.
+- `.maypop/kv.json` for KV data.
+- `.maypop/drive/` for Drive metadata and file bytes.
+
+Ignore this generated state. If the project also commits `.maypop/kv-policy.json`, do not ignore the entire directory; use selective entries such as:
+
+```gitignore
+.maypop/.lock
+.maypop/config.json
+.maypop/kv.json
+.maypop/drive/
+```
+
+Vite and Rsbuild accept sandbox options directly. Next.js accepts them as the second `withMaypop` argument:
+
+```ts
+maypop({ username: "Alice", dataDirectory: ".maypop/alice" });
+withMaypop(nextConfig, { username: "Alice", dataDirectory: ".maypop/alice" });
+```
+
+Use separate data directories to test isolated local identities or datasets. One directory cannot be written by two development servers at once.
+
+The local host currently provides only identity, KV, and Drive scopes. Other capabilities, including AI, agents, integrations, members, multiplayer, notifications, sharing, and cross-app actions, fail with `maypop/unsupported`. Treat that as a supported degradation path, not proof that those features work in production. Test permission-sensitive and unsupported capabilities in an attached Maypop environment before release.
+
+The local sandbox is development tooling, not a security boundary. Bind the development server only to a trusted interface unless the project is safe to expose.
+
 ## Build compatibility
 
 Maypop publishes static output. Current CLI adapters include Vite, Rsbuild, Next.js static export, and plain static files. Read [cli.md](cli.md) for authentication, initialization, `maypop.toml`, metadata application, profiles, and publication commands.
@@ -83,6 +168,8 @@ The app depends on arbitrary SQL queries, trusted secret-bearing operations, bac
 
 At minimum, verify:
 
+- The normal development server loads the app through the local Maypop sandbox when framework bindings are configured.
+- Local identity, KV, and Drive behavior survives a development-server restart when persistence matters.
 - The configured build creates the declared static entry file.
 - Direct navigation and asset paths work from the published routing model.
 - No required feature calls an unavailable local server route.
