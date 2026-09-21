@@ -35,11 +35,11 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 
 ## Authentication and authorization
 
-Do not build a second login page by default. The Maypop host owns sign-in and the SDK provides the current viewer.
+Do not build a second login page, password flow, or Google/social authentication by default. The Maypop host owns account authentication and the SDK provides the current app-scoped viewer. The surrounding Maypop shell already exposes global account identity, so do not add a redundant account menu merely to show who is logged in.
 
 Treat SDK roles as presentation hints. Gate mutation controls on current mode or scopes, handle permission failures, and let the Maypop backend enforce authorization. Listen for session or mode changes when a long-lived UI needs to react.
 
-Anonymous link visitors can be read-only even when signing in would grant write access. Use the host sign-in flow exposed by the SDK; do not collect credentials inside the app.
+Anonymous link visitors can be read-only even when signing in would grant write access. When `maypop.signInRequired` indicates that an account would help, offer a contextual action and use the host sign-in flow exposed by the SDK; do not collect credentials inside the app. Do not prompt when signing in would leave the session read-only.
 
 ## Choosing storage
 

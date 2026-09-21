@@ -16,7 +16,7 @@ The second role does not turn the app into a conventional server application. Th
 | Layer | Responsibility |
 | --- | --- |
 | App bundle | HTML, CSS, browser JavaScript, images, and other static assets |
-| Maypop host | Sandboxed iframe, session handshake, theme, permissions, navigation, sharing, and app lifecycle |
+| Maypop host | Sandboxed iframe, account authentication, session handshake, app identity chrome, theme, permissions, navigation, sharing, and app lifecycle |
 | Maypop services | Identity, shared KV, file storage, AI, agents, integrations, notifications, app roster, and live sessions |
 
 This distinction answers “does it have a backend?” precisely:
@@ -58,6 +58,8 @@ Maypop provisions platform capabilities around the app rather than asking the ap
 ## Identity and audience
 
 The app is the unit of ownership. It owns its identity, versions, data, files, sessions, and release state.
+
+Maypop owns account authentication and presents the viewer's account in the surrounding shell. Apps consume the resulting app-scoped identity; they do not normally implement login, signup, password recovery, Google authentication, or a second account menu. Anonymous link access is handled through the same host session model, with contextual host sign-in available through the SDK when it would grant more capability.
 
 A group is one audience to which the app can be published. Directly shared users and link visitors can be other audiences. These entry paths do not create separate copies of the app or separate databases.
 

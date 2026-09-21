@@ -7,6 +7,7 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 ## What it covers
 
 - The Maypop app, host, and platform-service layers.
+- Host-owned authentication and desktop/mobile application chrome.
 - Static bundle and sandboxed iframe constraints.
 - Identity, permissions, KV, Drive, AI, agents, members, multiplayer, MCP, sharing, and notifications.
 - App-owned data, audiences, versions, iterations, and remixes.
@@ -54,6 +55,7 @@ maypop-skill/
 ├── LICENSE
 └── references/
     ├── app-model.md
+    ├── host-environment.md
     └── sdk-and-publishing.md
 ```
 

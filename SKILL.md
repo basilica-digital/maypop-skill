@@ -22,6 +22,7 @@ Do not call every Maypop app “full stack.” A standalone static app may use n
 
 - For an explanation, distinguish app code, the Maypop host, and Maypop platform services. Correct misconceptions directly.
 - For compatibility assessment, inspect the supplied project and classify it as already compatible, convertible, or dependent on a separate backend.
+- For interface or product design, read [references/host-environment.md](references/host-environment.md) so the app complements Maypop's authentication and surrounding chrome instead of duplicating them.
 - For architecture or implementation, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md).
 - For exact SDK code, inspect the current `maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
 - For publication, inspect `maypop.toml`, framework configuration, and build output. Do not publish or alter remote app state without explicit authorization.
@@ -56,6 +57,8 @@ For a framework project, report:
 ## Preserve Maypop invariants
 
 - The app owns its identity, data, files, versions, sessions, and release state. A group is an audience, not an owner or a separate deployment.
+- Maypop owns account authentication. Do not add an app-level login, signup, password, or social-auth flow by default; use the SDK's host sign-in path when an anonymous visitor needs an account.
+- Maypop's shell already presents global app identity, authoring, sharing, navigation, and account controls. Product apps should avoid duplicating that chrome, while still using headings and app-specific actions when they help the content.
 - The app has one shared data space wherever it is opened. Per-person records require keys and policies scoped to the app-specific `maypop.user.id`.
 - Await `maypop.ready()` before using the SDK. Treat identities as app-scoped and pseudonymous.
 - Gate mutation UI on live permissions or mode. Server enforcement remains authoritative.
