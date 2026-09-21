@@ -28,6 +28,22 @@ Do not call every Maypop app “full stack.” A standalone static app may use n
 - For exact SDK code, inspect the current `@basilica-digital/maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
 - For publication, inspect `maypop.toml`, framework configuration, Git state, and build output. Authentication, initialization, metadata application, and publication change local or remote state; do not run them without explicit authorization.
 
+## Write useful listing metadata
+
+Write metadata for the finished app after its purpose, audience, scope, and main functionality are clear. Preserve metadata the user supplied or edited.
+
+- **Name:** Use the agreed product or company name with its original spelling and capitalization. Otherwise choose a few concrete, specific words in sentence case, without quotes or a trailing period. Do not invent a brand name unless the user explicitly delegates naming.
+- **Description:** Aim for one concise sentence of roughly 140 characters that says what the app does and conveys its clearest value or audience. Use concrete language without hype, Markdown, or line breaks.
+- **Tags:** Maypop currently uses the first tag as the app's store category. Choose the single best-fitting canonical category and do not invent extra SEO-style tags. Read [references/cli.md](references/cli.md) for the current category ids.
+
+## Ship a deliberate thumbnail
+
+Treat the thumbnail as part of the app's identity, not optional polish. When creating, preparing, or publishing an app, use an available image-generation skill to create bespoke cover art unless the user supplied an image or asked not to generate one. A placeholder, generic icon, or incidental UI screenshot leaves the app looking unfinished.
+
+Compose the image as a full-bleed 4:3 cover. Prefer a 2048x1536 source when the generator supports exact dimensions; Maypop's browser import flow caps the longest edge at 1200 pixels, making 1200x900 the corresponding optimized 4:3 asset size. Keep one clear focal point near the center because the same art can appear in square app icons and responsive wide heroes. Extend the background to every edge, leave crop-safe breathing room around the subject, and avoid text, lettering, logos, borders, and UI screenshots.
+
+Save generated art inside the app repository, set `[app].thumbnail` in `maypop.toml` to its repository-relative path, and preview the important crops before applying metadata. Do not replace user-provided art without permission. Applying metadata remains a remote mutation and still requires explicit authorization.
+
 ## Assess an existing application
 
 Separate the application into browser code and server dependencies. Look for server routes, server actions, middleware, Node built-ins, filesystem access, databases, secrets, background jobs, webhooks, and server-render-only behavior.
