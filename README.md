@@ -50,7 +50,7 @@ Invoke `maypop-app` explicitly if the harness supports named skill invocation, o
 - “Authenticate the Maypop CLI and initialize this repository.”
 - “Update this app's metadata from `maypop.toml` and publish a version.”
 
-The skill intentionally avoids harness-specific tools and commands. For exact SDK implementation, it instructs the harness to inspect the current local `maypop-sdk` declarations instead of guessing from a possibly stale summary.
+The skill intentionally avoids harness-specific tools and commands. For exact SDK implementation, it instructs the harness to inspect the installed `@basilica-digital/maypop-sdk` declarations instead of guessing from a possibly stale summary.
 
 ## Structure
 

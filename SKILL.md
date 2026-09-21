@@ -23,9 +23,9 @@ Do not call every Maypop app “full stack.” A standalone static app may use n
 - For an explanation, distinguish app code, the Maypop host, and Maypop platform services. Correct misconceptions directly.
 - For compatibility assessment, inspect the supplied project and classify it as already compatible, convertible, or dependent on a separate backend.
 - For interface or product design, read [references/host-environment.md](references/host-environment.md) so the app complements Maypop's authentication and surrounding chrome instead of duplicating them.
-- For architecture, implementation, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Prefer the `maypop-sdk` framework sandbox for Vite, Rsbuild, and Next.js projects that need to exercise identity, KV, or Drive before deployment.
+- For architecture, implementation, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Prefer the `@basilica-digital/maypop-sdk` framework sandbox for Vite, Rsbuild, and Next.js projects that need to exercise identity, KV, or Drive before deployment.
 - For CLI installation, authentication, initialization, `maypop.toml`, metadata, profiles, or publishing, read [references/cli.md](references/cli.md). Use the installed command's `--help` output as the final authority on available flags.
-- For exact SDK code, inspect the current `maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
+- For exact SDK code, inspect the current `@basilica-digital/maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
 - For publication, inspect `maypop.toml`, framework configuration, Git state, and build output. Authentication, initialization, metadata application, and publication change local or remote state; do not run them without explicit authorization.
 
 ## Assess an existing application
