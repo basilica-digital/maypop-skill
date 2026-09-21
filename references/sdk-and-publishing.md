@@ -162,7 +162,7 @@ Connected mode skips local KV/Drive initialization and sends the app API surface
 }
 ```
 
-The repository must already be connected by `maypop init`, and the selected profile must have access to the app. Omit `profile` to use normal CLI selection, including `MAYPOP_PROFILE` and repository API URL matching. The long-lived CLI credential never enters the iframe.
+The repository must already be connected by `maypop init`, and the selected profile must have access to the app. Omit `profile` to use normal CLI selection, including `MAYPOP_PROFILE` and repository API URL matching. The Node development host reads the owner-only profile store written by `maypop auth`, mints an app-scoped session itself, and never exposes the long-lived CLI credential or refresh token to the iframe.
 
 Real notification delivery requires connected mode plus `"notifications": "live"`. Use `"disabled"` to remove notification permission. The safe default in every mode is `"inspect"`.
 
