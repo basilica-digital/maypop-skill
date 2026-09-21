@@ -15,7 +15,7 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 - Compatibility assessment for existing applications.
 - Migration of common backend responsibilities to Maypop services.
 - `maypop.toml`, static framework builds, and publishing concepts.
-- CLI authentication, `maypop init`, metadata application, publication, and optional profiles.
+- CLI installation from verified release binaries or Cargo, authentication, `maypop init`, metadata application, publication, and optional profiles.
 - The boundary between Maypop-native capabilities and a separately hosted backend.
 
 ## Install
@@ -46,6 +46,7 @@ Invoke `maypop-app` explicitly if the harness supports named skill invocation, o
 - “Replace this app's authentication and database with Maypop services.”
 - “Prepare this Vite application for Maypop publishing.”
 - “Add the local Maypop sandbox to this Rsbuild app.”
+- “Install the Maypop CLI for this machine.”
 - “Authenticate the Maypop CLI and initialize this repository.”
 - “Update this app's metadata from `maypop.toml` and publish a version.”
 

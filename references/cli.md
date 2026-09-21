@@ -1,10 +1,11 @@
 # Maypop CLI
 
-Read this reference when a request involves the `maypop` command, authentication, project initialization, `maypop.toml`, app metadata, profiles, or publication.
+Read this reference when a request involves installing the `maypop` command, authentication, project initialization, `maypop.toml`, app metadata, profiles, or publication.
 
 The CLI is a Rust Clap application. Prefer its self-documenting command tree over recalled syntax:
 
 ```sh
+maypop --version
 maypop --help
 maypop auth --help
 maypop init --help
@@ -14,6 +15,67 @@ maypop profile --help
 ```
 
 The public workflow consists of `auth`, `init`, `publish`, `info`, `app apply`, `status`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
+
+## Install the CLI
+
+First check whether Maypop is already installed. Do not replace an existing binary blindly:
+
+```sh
+command -v maypop
+maypop --version
+```
+
+For most users, install a prebuilt archive from the [latest GitHub release](https://github.com/basilica-digital/maypop-cli/releases/latest). The current release pipeline publishes these targets:
+
+| System | Release target | Archive |
+| --- | --- | --- |
+| macOS on Apple silicon | `aarch64-apple-darwin` | `.tar.gz` |
+| macOS on Intel | `x86_64-apple-darwin` | `.tar.gz` |
+| Linux on x86-64 | `x86_64-unknown-linux-gnu` | `.tar.gz` |
+| Windows on x86-64 | `x86_64-pc-windows-msvc` | `.zip` |
+
+Release files follow the pattern `maypop-<tag>-<target>.<archive>`, where a tag looks like `v0.1.0`. Download both the archive and its adjacent `.sha256` file. Do not claim support for an unlisted operating system or architecture; use a source build when the target has a working Rust toolchain.
+
+Verify the archive before extracting it. Use the downloaded filename in place of `<archive>`:
+
+```sh
+# macOS
+shasum -a 256 -c <archive>.sha256
+
+# Linux
+sha256sum -c <archive>.sha256
+```
+
+On Windows PowerShell, calculate the archive hash and compare it with the first value in the downloaded `.sha256` file:
+
+```powershell
+Get-FileHash .\maypop-<tag>-x86_64-pc-windows-msvc.zip -Algorithm SHA256
+Get-Content .\maypop-<tag>-x86_64-pc-windows-msvc.zip.sha256
+```
+
+Extract the verified archive:
+
+```sh
+tar -xzf maypop-<tag>-<target>.tar.gz
+```
+
+On Windows, use `Expand-Archive` for the `.zip`. Move `maypop` or `maypop.exe` into a directory on the user's `PATH`, then verify the result:
+
+```sh
+maypop --version
+```
+
+Installing or replacing an executable changes the user's machine. Explain the chosen destination and obtain authorization before downloading files or moving a binary, especially when the destination needs elevated privileges. Do not disable platform security checks or invent an installer, npm package, Homebrew formula, or Windows package that the project does not publish.
+
+Users who already have Rust and Cargo can build a released version from source:
+
+```sh
+cargo install --locked --git https://github.com/basilica-digital/maypop-cli --tag vX.Y.Z
+```
+
+Replace `vX.Y.Z` with the desired release tag. Omitting `--tag` installs the current `main` branch instead of an immutable release, so do that only when the user explicitly wants unreleased changes.
+
+Installation does not authenticate the CLI. After installation, continue with `maypop auth`.
 
 ## Default workflow
 
