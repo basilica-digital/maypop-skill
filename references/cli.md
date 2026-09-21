@@ -11,10 +11,11 @@ maypop auth --help
 maypop init --help
 maypop publish --help
 maypop app --help
+maypop mcp --help
 maypop profile --help
 ```
 
-The public workflow consists of `auth`, `init`, `publish`, `info`, `app apply`, `status`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
+The public workflow consists of `auth`, `init`, `publish`, `info`, `app apply`, `status`, `mcp`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
 
 ## Install the CLI
 
@@ -120,6 +121,35 @@ Check connectivity and the selected identity without changing the app:
 ```sh
 maypop status
 ```
+
+## Manage MCP servers
+
+Custom MCP connections belong to the account selected by the usual profile
+rules. Pass secrets through environment variables rather than literal command
+arguments:
+
+```sh
+export SEARCH_MCP_AUTH="Bearer ..."
+maypop mcp connect search https://mcp.example.com \
+  --header-env Authorization=SEARCH_MCP_AUTH
+maypop mcp list
+```
+
+The backend verifies the MCP endpoint before saving the connection and stores
+its authentication material encrypted. Once connected, explicitly link it to
+the app in the current Maypop repository:
+
+```sh
+maypop mcp link search
+maypop mcp linked
+maypop mcp unlink search
+```
+
+Names are case-insensitive selectors only when unique; IDs are always accepted.
+`maypop mcp disconnect search` removes the personal connection and all of its
+app links. `list` and `linked` accept `--json`. OAuth and managed provider
+authorization still begins in Maypop account settings, after which the CLI can
+list and link the resulting connection.
 
 ## Initialize a project
 

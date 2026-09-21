@@ -172,12 +172,12 @@ Hybrid mode keeps KV and Drive local while forwarding selected capabilities thro
 {
   "mode": "hybrid",
   "profile": "dev",
-  "remoteCapabilities": ["ai", "members", "link", "multiplayer"],
+  "remoteCapabilities": ["ai", "members", "link", "mcp", "multiplayer"],
   "notifications": "inspect"
 }
 ```
 
-`ai` covers chat, streaming, images, video, audio, transcription, and agent model calls and consumes the selected account's real allowance. Agent execution stays in the local page while its model calls use the authenticated AI capability. `members` reads the real app roster. `link` performs server-side URL unfurling. `multiplayer` uses the real ephemeral room service and also exposes the real member roster needed for peer display. KV, Drive, mock MCP, sharing, and notifications remain local.
+`ai` covers chat, streaming, images, video, audio, transcription, and agent model calls and consumes the selected account's real allowance. Agent execution stays in the local page while its model calls use the authenticated AI capability. `members` reads the real app roster. `link` performs server-side URL unfurling. `mcp` exposes the app's real linked integrations; connect and link them with `maypop mcp connect` and `maypop mcp link`. `multiplayer` uses the real ephemeral room service and also exposes the real member roster needed for peer display. KV, Drive, sharing, and notifications remain local. Do not configure real `mcp` and `.maypop/mcp.json` fixtures together in hybrid mode.
 
 Connected mode skips local KV/Drive initialization and sends the app API surface to the real app while preserving the local host handshake:
 
@@ -189,7 +189,7 @@ Connected mode skips local KV/Drive initialization and sends the app API surface
 }
 ```
 
-The repository must already be connected by `maypop init`, and the selected profile must have access to the app. Omit `profile` to use normal CLI selection, including `MAYPOP_PROFILE` and repository API URL matching. The Node development host reads the owner-only profile store written by `maypop auth`, mints an app-scoped session itself, and never exposes the long-lived CLI credential or refresh token to the iframe.
+The repository must already be connected by `maypop init`, and the selected profile must have access to the app. Omit `profile` to use normal CLI selection, including `MAYPOP_PROFILE` and repository API URL matching. The Node development host reads the owner-only profile store written by `maypop auth`, mints an app-scoped session itself, and never exposes the long-lived CLI credential or refresh token to the iframe. Connected mode forwards linked MCP discovery and tool calls with the rest of the app API without another capability flag.
 
 Real notification delivery requires connected mode plus `"notifications": "live"`. Use `"disabled"` to remove notification permission. The safe default in every mode is `"inspect"`.
 
