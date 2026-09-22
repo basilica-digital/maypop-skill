@@ -151,6 +151,36 @@ app links. `list` and `linked` accept `--json`. OAuth and managed provider
 authorization still begins in Maypop account settings, after which the CLI can
 list and link the resulting connection.
 
+Inspect the live MCP tool catalog before invoking a tool. `docs` is an alias
+for `tools`; `--json` preserves the raw tool-list response for agents and other
+automation:
+
+```sh
+maypop mcp tools search
+maypop mcp tools search --json
+maypop mcp call search web_search \
+  --arguments '{"query":"Maypop SDK"}'
+```
+
+These commands use the personal connection by default. From an initialized app
+repository, add `--app` to use the app-linked endpoints and verify that the
+connection is actually available to that app:
+
+```sh
+maypop mcp docs search --app --json
+maypop mcp call search web_search --app \
+  --arguments '{"query":"Maypop SDK"}'
+```
+
+`call` accepts only a JSON object matching the advertised input schema and
+prints the raw MCP result. It exits unsuccessfully for transport errors and MCP
+results with `isError: true`, so an agent can use its process status as a test.
+Tool execution can change the external service; inspect the tool description
+and arguments before running it. The tool catalog is the documentation
+available through the current MCP integration API. MCP resources and prompts
+are not exposed yet, so do not imply that these commands import arbitrary
+server documents.
+
 ## Initialize a project
 
 Run `init` inside the app directory, or pass a directory explicitly:
