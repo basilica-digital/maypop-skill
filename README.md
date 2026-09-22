@@ -16,6 +16,7 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 - Migration of common backend responsibilities to Maypop services.
 - `maypop.toml`, static framework builds, and publishing concepts.
 - CLI installation from verified release binaries or Cargo, authentication, `maypop init`, metadata application, publication, and optional profiles.
+- Authenticated image, audio, and video generation through `maypop ai` when a harness has no native media tools.
 - The boundary between Maypop-native capabilities and a separately hosted backend.
 
 ## Install
@@ -92,6 +93,8 @@ Invoke `maypop-app` explicitly if the harness supports named skill invocation, o
 - “Add the local Maypop sandbox to this Rsbuild app.”
 - “Install the Maypop CLI for this machine.”
 - “Authenticate the Maypop CLI and initialize this repository.”
+- “Generate an app hero image with Maypop AI.”
+- “Create an audio loop for this game when no audio tool is available.”
 - “Update this app's metadata from `maypop.toml` and publish a version.”
 
 The skill intentionally avoids harness-specific tools and commands. For exact SDK implementation, it instructs the harness to inspect the installed `@basilica-digital/maypop-sdk` declarations instead of guessing from a possibly stale summary.

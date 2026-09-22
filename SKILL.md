@@ -1,6 +1,6 @@
 ---
 name: maypop-app
-description: Explain, assess, design, develop, adapt, or publish web applications for Maypop's static runtime, platform SDK, local framework sandbox, and `maypop` CLI. Use when a user asks what a Maypop app is, whether an existing project is compatible, how Maypop's BaaS works, how to test SDK capabilities locally, how to use `maypop.toml`, or how to install, authenticate, initialize, configure, or publish with the CLI. Do not use for unrelated flower questions or for development of Maypop's own platform internals.
+description: Explain, assess, design, develop, adapt, or publish web applications for Maypop's static runtime, platform SDK, local framework sandbox, and `maypop` CLI. Use when a user asks what a Maypop app is, whether an existing project is compatible, how Maypop's BaaS works, how to test SDK capabilities locally, how to use `maypop.toml`, how to generate app media with `maypop ai`, or how to install, authenticate, initialize, configure, or publish with the CLI. Do not use for unrelated flower questions or for development of Maypop's own platform internals.
 license: Apache-2.0
 ---
 
@@ -24,7 +24,8 @@ Do not call every Maypop app “full stack.” A standalone static app may use n
 - For compatibility assessment, inspect the supplied project and classify it as already compatible, convertible, or dependent on a separate backend.
 - For interface or product design, read [references/host-environment.md](references/host-environment.md) so the app complements Maypop's authentication and surrounding chrome instead of duplicating them.
 - For architecture, implementation, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Prefer the `@basilica-digital/maypop-sdk` framework host for Vite, Rsbuild, and Next.js projects that need local data, authenticated AI, notification inspection, or a connected app session before deployment.
-- For CLI installation, authentication, initialization, `maypop.toml`, metadata, profiles, or publishing, read [references/cli.md](references/cli.md). Use the installed command's `--help` output as the final authority on available flags.
+- For CLI installation, authentication, initialization, `maypop.toml`, metadata, profiles, AI media generation, or publishing, read [references/cli.md](references/cli.md). Use the installed command's `--help` output as the final authority on available flags.
+- When the harness has no native image, audio, or video generator, use authenticated `maypop ai` commands as the fallback for deliberate app assets. Generation consumes credits and changes a local file, so require the user's authorization, run each paid request only once, and never retry it automatically.
 - For exact SDK code, inspect the current `@basilica-digital/maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
 - For publication, inspect `maypop.toml`, framework configuration, Git state, and build output. Authentication, initialization, metadata application, and publication change local or remote state; do not run them without explicit authorization.
 
@@ -38,7 +39,7 @@ Write metadata for the finished app after its purpose, audience, scope, and main
 
 ## Ship a deliberate thumbnail
 
-Treat the thumbnail as part of the app's identity, not optional polish. When creating, preparing, or publishing an app, use an available image-generation skill to create bespoke cover art unless the user supplied an image or asked not to generate one. A placeholder, generic icon, or incidental UI screenshot leaves the app looking unfinished.
+Treat the thumbnail as part of the app's identity, not optional polish. When creating, preparing, or publishing an app, use an available image-generation tool to create bespoke cover art unless the user supplied an image or asked not to generate one. If the harness has no native image generator and the authenticated CLI is installed, `maypop ai image` is the fallback. A placeholder, generic icon, or incidental UI screenshot leaves the app looking unfinished.
 
 Compose the image as a full-bleed 4:3 cover. Prefer a 2048x1536 source when the generator supports exact dimensions; Maypop's browser import flow caps the longest edge at 1200 pixels, making 1200x900 the corresponding optimized 4:3 asset size. Keep one clear focal point near the center because the same art can appear in square app icons and responsive wide heroes. Extend the background to every edge, leave crop-safe breathing room around the subject, and avoid text, lettering, logos, borders, and UI screenshots.
 
