@@ -14,7 +14,7 @@ await maypop.ready();
 
 Only then read identity, mode, permissions, theme, or other capabilities. The session is real in Studio preview as well as in a published app; preview writes are not disposable mocks.
 
-This differs from the local framework sandbox described below. Studio preview is attached to real Maypop services; the local sandbox uses development-only identity, KV, and Drive data on the developer's machine.
+This differs from the local framework host described below. Studio preview is attached to real Maypop services; the default sandbox uses development-only identity, audience, KV, Drive, MCP, sharing, and notification behavior on the developer's machine. Hybrid and connected modes can opt into authenticated services.
 
 Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, inspect the installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
 
@@ -51,9 +51,9 @@ Do not replace shared or cross-device state with `localStorage`. Local browser s
 
 For per-user data, use the app-scoped viewer id in the key design and provide a saved-data policy that restricts access as intended. Never assume an app-owned store is private to the writer merely because the key contains a user id.
 
-## Develop with the local sandbox
+## Develop with the local host
 
-The `@basilica-digital/maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, KV, and Drive through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for this local loop.
+The `@basilica-digital/maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, members, KV, Drive, agents, multiplayer, MCP, sharing, and notification inspection through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for the default local loop.
 
 Install `@basilica-digital/maypop-sdk` from npm with the project's package manager. Keep it as an application dependency when browser code imports it:
 
@@ -111,14 +111,17 @@ The default sandbox viewer is a synthetic signed-in admin named `Developer`. Loc
 - `.maypop/config.json` for the generated app and viewer identity.
 - `.maypop/kv.json` for KV data.
 - `.maypop/drive/` for Drive metadata and file bytes.
+- `.maypop/notifications.json` for captured notification sends.
 
 Ignore this generated state. If the project also commits `.maypop/kv-policy.json`, do not ignore the entire directory; use selective entries such as:
 
 ```gitignore
 .maypop/.lock
 .maypop/config.json
+.maypop/dev.json
 .maypop/kv.json
 .maypop/drive/
+.maypop/notifications.json
 ```
 
 Vite and Rsbuild accept sandbox options directly. Next.js accepts them as the second `withMaypop` argument:
@@ -130,7 +133,67 @@ withMaypop(nextConfig, { username: "Alice", dataDirectory: ".maypop/alice" });
 
 Use separate data directories to test isolated local identities or datasets. One directory cannot be written by two development servers at once.
 
-The local host currently provides only identity, KV, and Drive scopes. Other capabilities, including AI, agents, integrations, members, multiplayer, notifications, sharing, and cross-app actions, fail with `maypop/unsupported`. Treat that as a supported degradation path, not proof that those features work in production. Test permission-sensitive and unsupported capabilities in an attached Maypop environment before release.
+The local host provides configurable identity and audience fixtures, KV, Drive, mock MCP tools, a local Share card, and captured notifications. Open `/_maypop/notifications` to inspect whom each `maypop.notify()` call addressed, its content, and its deep link. Captured calls never prove real delivery.
+
+Use `.maypop/dev.json` in sandbox mode to exercise read-only, anonymous, and signed-in flows without application-only branches:
+
+```json
+{
+  "mode": "sandbox",
+  "viewer": {
+    "username": "Guest",
+    "role": "reader",
+    "anonymous": true,
+    "signInGrantsWrite": true,
+    "signedInUsername": "Alice",
+    "signedInRole": "writer"
+  },
+  "members": [
+    { "username": "Bob", "role": "editor", "connected": true }
+  ],
+  "guestCount": 2,
+  "strictStorage": true
+}
+```
+
+When `signInGrantsWrite` is true, the normal SDK sign-in request transitions the local fixture and reloads the app. Local KV writes always validate production size limits; `strictStorage` additionally applies the committed `.maypop/kv-policy.json` rules. Without it, sandbox storage remains permissive except for the viewer's read or write scope.
+
+Mock MCP servers live in developer-local `.maypop/mcp.json`. Define each server's id, name, mock URL, and tools plus an optional static `result`; calls without one echo their arguments. This is for deterministic local integration testing, not emulating real external services.
+
+The local Share card clearly labels its URL as unpublished. Notification deep links can be reopened inside the local host from the inspector. These simulators validate app behavior but not Maypop delivery or host-shell presentation.
+
+### Authenticated and connected development
+
+`.maypop/dev.json` is a developer-local opt-in. Never put credentials in it and do not commit it: its mode can use a developer's AI allowance or real app data.
+
+Hybrid mode keeps KV and Drive local while forwarding selected capabilities through the profile authenticated by `maypop auth`:
+
+```json
+{
+  "mode": "hybrid",
+  "profile": "dev",
+  "remoteCapabilities": ["ai", "members", "link", "mcp", "multiplayer"],
+  "notifications": "inspect"
+}
+```
+
+`ai` covers chat, streaming, images, video, audio, transcription, and agent model calls and consumes the selected account's real allowance. Agent execution stays in the local page while its model calls use the authenticated AI capability. `members` reads the real app roster. `link` performs server-side URL unfurling. `mcp` exposes the app's real linked integrations; connect and link them with `maypop mcp connect` and `maypop mcp link`. `multiplayer` uses the real ephemeral room service and also exposes the real member roster needed for peer display. KV, Drive, sharing, and notifications remain local. Do not configure real `mcp` and `.maypop/mcp.json` fixtures together in hybrid mode.
+
+Connected mode skips local KV/Drive initialization and sends the app API surface to the real app while preserving the local host handshake:
+
+```json
+{
+  "mode": "connected",
+  "profile": "dev",
+  "notifications": "inspect"
+}
+```
+
+The repository must already be connected by `maypop init`, and the selected profile must have access to the app. Omit `profile` to use normal CLI selection, including `MAYPOP_PROFILE` and repository API URL matching. The Node development host reads the owner-only profile store written by `maypop auth`, mints an app-scoped session itself, and never exposes the long-lived CLI credential or refresh token to the iframe. Connected mode forwards linked MCP discovery and tool calls with the rest of the app API without another capability flag.
+
+Real notification delivery requires connected mode plus `"notifications": "live"`. Use `"disabled"` to remove notification permission. The safe default in every mode is `"inspect"`.
+
+Capabilities that require navigation in the surrounding Maypop product shell, such as `maypop.apps.open()` and opening group settings, remain unavailable locally. Treat that as supported degradation and verify those interactions in Maypop before release.
 
 The local sandbox is development tooling, not a security boundary. Bind the development server only to a trusted interface unless the project is safe to expose.
 
@@ -168,12 +231,12 @@ The app depends on arbitrary SQL queries, trusted secret-bearing operations, bac
 
 At minimum, verify:
 
-- The normal development server loads the app through the local Maypop sandbox when framework bindings are configured.
+- The normal development server loads the app through the local Maypop host when framework bindings are configured.
 - Local identity, KV, and Drive behavior survives a development-server restart when persistence matters.
 - The configured build creates the declared static entry file.
 - Direct navigation and asset paths work from the published routing model.
 - No required feature calls an unavailable local server route.
 - SDK initialization waits for readiness and handles read-only sessions.
 - Shared data and file behavior use the intended app-wide or per-user policy.
-- Optional AI, multiplayer, integration, share, and notification features fail gracefully when unavailable.
+- Optional AI, agent, multiplayer, integration, share, and notification features work in the intended sandbox, hybrid, or connected mode and fail gracefully elsewhere.
 - The app works at iframe dimensions and does not assume the top-level browser window.
