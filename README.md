@@ -73,7 +73,7 @@ the personal skill directory for the harness. For Codex:
 
 ```sh
 mkdir -p ~/.agents/skills
-git clone --branch v1.3.0 --depth 1 \
+git clone --branch v1.4.0 --depth 1 \
   https://github.com/basilica-digital/maypop-skill.git \
   ~/.agents/skills/maypop-app
 ```
