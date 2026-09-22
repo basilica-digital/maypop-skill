@@ -11,11 +11,12 @@ maypop auth --help
 maypop init --help
 maypop publish --help
 maypop app --help
+maypop ai --help
 maypop mcp --help
 maypop profile --help
 ```
 
-The public workflow consists of `auth`, `init`, `publish`, `info`, `app apply`, `status`, `mcp`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
+The public workflow consists of `auth`, `init`, `publish`, `info`, `app apply`, `status`, `ai`, `mcp`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
 
 ## Install the CLI
 
@@ -121,6 +122,63 @@ Check connectivity and the selected identity without changing the app:
 ```sh
 maypop status
 ```
+
+## Generate media when the harness cannot
+
+Use `maypop ai` as a fallback when the coding harness has no native generator
+for the required media type. It uses the account selected by `maypop auth` and
+does not require an initialized app or create an app SDK session.
+
+Each command is a paid remote generation and writes a local file. A user asking
+to generate the asset authorizes one matching call; otherwise explain the cost
+and obtain authorization before running it. Never put a paid generation in a
+loop, never auto-retry a failed or uncertain request, and never add `--force`
+unless replacing that exact file was requested.
+
+Generate a PNG image:
+
+```sh
+maypop ai image \
+  --prompt "A full-bleed paper-cut garden, warm neutral palette, no text" \
+  --output Images/hero.png \
+  --size 2048x1536
+```
+
+Use `--tier quality` only when the asset benefits from it. Image output must be
+`.png`. `--size` accepts the current API's resolution presets or an explicit
+`WIDTHxHEIGHT`; use `maypop ai image --help` and let the API validate changing
+provider limits.
+
+Generate MP3 or WAV audio:
+
+```sh
+maypop ai audio \
+  --prompt "A gentle 12-second marimba loop with soft room ambience" \
+  --output Audio/theme.mp3
+```
+
+The output extension chooses the format. An explicit `--format mp3|wav` must
+match it.
+
+Generate an MP4 video:
+
+```sh
+maypop ai video \
+  --prompt "Slow dolly through a paper garden at sunrise, leaves moving in the breeze" \
+  --output Video/intro.mp4 \
+  --duration 8 \
+  --ratio 16:9 \
+  --generate-audio
+```
+
+Fast video supports 4–15 seconds. Use `--model quality` for up to 30 seconds;
+resolution is `480p` or `720p`. Generation can take several minutes, so allow
+the process to finish instead of launching a duplicate request.
+
+The CLI creates parent directories and refuses to overwrite an existing file
+without `--force`. After success, verify that the output exists and is nonempty,
+then wire it into the app. Do not read binary media as text. Use the harness's
+normal media preview, browser, or file inspection facilities to assess it.
 
 ## Manage MCP servers
 
@@ -334,4 +392,4 @@ git status --short
 git remote -v
 ```
 
-Then explain the intended change. `auth`, `init`, `app apply`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, or change remote Maypop state.
+Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state.
