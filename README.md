@@ -10,12 +10,12 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 - Host-owned authentication and desktop/mobile application chrome.
 - Static bundle and sandboxed iframe constraints.
 - Identity, permissions, KV, Drive, AI, agents, members, multiplayer, MCP, sharing, and notifications.
-- Local Vite, Rsbuild, and Next.js sandbox setup for testing identity, KV, and Drive without deploying.
+- Maypop SDK v1.1, including local Vite, Rsbuild, and Next.js sandbox setup for testing identity, KV, and Drive without deploying.
 - App-owned data, audiences, versions, iterations, and remixes.
 - Compatibility assessment for existing applications.
 - Migration of common backend responsibilities to Maypop services.
 - `maypop.toml`, static framework builds, and publishing concepts.
-- CLI installation from verified release binaries or Cargo, authentication, `maypop init`, metadata application, publication, and optional profiles.
+- CLI installation from verified release binaries or Cargo, status-first authentication, `maypop init`, metadata application, publication, and optional profiles.
 - Authenticated image, audio, and video generation through `maypop ai` when a harness has no native media tools.
 - The boundary between Maypop-native capabilities and a separately hosted backend.
 
@@ -97,7 +97,7 @@ Invoke `maypop-app` explicitly if the harness supports named skill invocation, o
 - “Create an audio loop for this game when no audio tool is available.”
 - “Update this app's metadata from `maypop.toml` and publish a version.”
 
-The skill intentionally avoids harness-specific tools and commands. For exact SDK implementation, it instructs the harness to inspect the installed `@basilica-digital/maypop-sdk` declarations instead of guessing from a possibly stale summary.
+The skill intentionally avoids harness-specific tools and commands. It targets `@basilica-digital/maypop-sdk` v1.1 and instructs the harness to inspect the installed declarations instead of guessing from a possibly stale summary.
 
 ## Structure
 

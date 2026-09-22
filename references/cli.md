@@ -77,14 +77,25 @@ cargo install --locked --git https://github.com/basilica-digital/maypop-cli --ta
 
 Replace `vX.Y.Z` with the desired release tag. Omitting `--tag` installs the current `main` branch instead of an immutable release, so do that only when the user explicitly wants unreleased changes.
 
-Installation does not authenticate the CLI. After installation, continue with `maypop auth`.
+Installation does not authenticate the CLI, but the machine may already have a valid saved profile. After installation, run `maypop status`; continue with `maypop auth` only when the selected profile is not authenticated.
 
 ## Default workflow
 
 Most people using one Maypop account and the production service do not need to think about profiles or API URLs:
 
 ```sh
+maypop status
+```
+
+Only when status reports that the selected profile is not authenticated, obtain authorization and run:
+
+```sh
 maypop auth
+```
+
+Once the CLI is authenticated, continue with the project workflow:
+
+```sh
 cd my-app
 maypop init
 git add .
@@ -92,21 +103,29 @@ git commit -m "feat: create Maypop app"
 maypop publish
 ```
 
-This sequence has real side effects:
+Everything after the status check has real side effects:
 
-- `auth` opens a browser approval flow and saves a credential.
+- `auth`, when needed, opens a browser approval flow and saves or replaces a credential.
 - `init` creates an unpublished Maypop app and changes local Git configuration.
 - `publish` pushes committed source and creates an immutable published version.
 
 Explain the effects and obtain authorization before running these commands for a user.
 
-## Authenticate
+## Check authentication before authenticating
+
+```sh
+maypop status
+```
+
+`status` is read-only. It reports backend connectivity, the selected profile, and whether that profile has a valid authenticated account. If it reports `Authenticated: yes`, keep using that session and do not run `maypop auth` again.
+
+Only when `status` reports no valid authentication, obtain authorization from the user and run:
 
 ```sh
 maypop auth
 ```
 
-The CLI starts a device authorization, opens Maypop in the browser, waits for the user to approve the device, and saves the resulting credential in an owner-only profiles file. Maypop's existing account authentication handles the browser side; the CLI never asks for a password or Google credential in the terminal.
+The CLI then starts a device authorization, opens Maypop in the browser, waits for the user to approve the device, and saves the resulting credential in an owner-only profiles file. Maypop's existing account authentication handles the browser side; the CLI never asks for a password or Google credential in the terminal.
 
 Useful options:
 
@@ -117,7 +136,7 @@ maypop auth --device-name "Work laptop"
 
 `--no-browser` prints the approval URL and code without launching a browser. The current CLI flow issues a 90-day credential that can be revoked from Maypop account settings. If an old credential predates Git access or has expired or been revoked, authenticate again.
 
-Check connectivity and the selected identity without changing the app:
+Re-run the read-only check afterward to verify connectivity and the selected identity:
 
 ```sh
 maypop status
@@ -126,7 +145,7 @@ maypop status
 ## Generate media when the harness cannot
 
 Use `maypop ai` as a fallback when the coding harness has no native generator
-for the required media type. It uses the account selected by `maypop auth` and
+for the required media type. It uses the account from the selected authenticated profile and
 does not require an initialized app or create an app SDK session.
 
 Each command is a paid remote generation and writes a local file. A user asking
@@ -355,15 +374,31 @@ Do not commit, stash, change remotes, or publish merely to get past a failed pre
 
 ## Profiles are optional
 
-For one account on production, use plain `maypop auth`; it creates the `default` profile against the production API. Do not introduce profile ceremony into the basic workflow.
+For one account on production, start with plain `maypop status`. If the default production profile is not authenticated, use plain `maypop auth`; it creates or updates the `default` profile against the production API. Do not introduce profile ceremony into the basic workflow.
 
-Profiles become useful for multiple accounts or environments:
+Profiles become useful for multiple accounts or environments. Common profile and API URL pairs are:
+
+| Profile | API URL |
+| --- | --- |
+| `local` | `http://localhost:3000` |
+| `dev` | `https://api.dev.maypop.ai` |
+| `prod` | `https://api.app.maypop.ai` |
+
+Check the intended profile first, using its matching URL:
 
 ```sh
-maypop --profile local --url http://localhost:3000 auth
-maypop --profile dev --url https://api.dev.maypop.ai auth
-maypop --profile prod --url https://api.app.maypop.ai auth
+maypop --profile dev --url https://api.dev.maypop.ai status
+```
 
+Only when that check reports no valid authentication, obtain authorization and run the matching `auth` command:
+
+```sh
+maypop --profile dev --url https://api.dev.maypop.ai auth
+```
+
+Manage profile selection separately:
+
+```sh
 maypop profile list
 maypop profile set-default prod
 ```

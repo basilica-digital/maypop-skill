@@ -4,7 +4,7 @@ Use this reference for architecture, implementation planning, compatibility asse
 
 ## SDK lifecycle
 
-Maypop's browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted browser script, depending on the project. Both forms expose the same `window.maypop` object.
+This reference targets Maypop SDK v1.1. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `window.maypop` object.
 
 Always wait for the host handshake:
 
@@ -16,7 +16,7 @@ Only then read identity, mode, permissions, theme, or other capabilities. The se
 
 This differs from the local framework host described below. Studio preview is attached to real Maypop services; the default sandbox uses development-only identity, audience, KV, Drive, MCP, sharing, and notification behavior on the developer's machine. Hybrid and connected modes can opt into authenticated services.
 
-Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, inspect the installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
+Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, confirm that a package-based app uses v1.1, then inspect its installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
 
 ## Capability map
 
@@ -55,11 +55,13 @@ For per-user data, use the app-scoped viewer id in the key design and provide a 
 
 The `@basilica-digital/maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, members, KV, Drive, agents, multiplayer, MCP, sharing, and notification inspection through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for the default local loop.
 
-Install `@basilica-digital/maypop-sdk` from npm with the project's package manager. Keep it as an application dependency when browser code imports it:
+Inspect the project's manifest and lockfile first. If the SDK is absent or older than v1.1, install or update it with the project's existing package manager so the manifest and lockfile stay in sync. Keep it as an application dependency when browser code imports it. For example, the current v1.1 release is:
 
 ```sh
-pnpm add @basilica-digital/maypop-sdk
+pnpm add @basilica-digital/maypop-sdk@1.1.0
 ```
+
+Use the equivalent `npm`, Yarn, or Bun command when that is what the project already uses. Do not introduce a second package manager merely to add the SDK.
 
 Application code does not need a sandbox branch:
 
@@ -166,7 +168,7 @@ The local Share card clearly labels its URL as unpublished. Notification deep li
 
 `.maypop/dev.json` is a developer-local opt-in. Never put credentials in it and do not commit it: its mode can use a developer's AI allowance or real app data.
 
-Hybrid mode keeps KV and Drive local while forwarding selected capabilities through the profile authenticated by `maypop auth`:
+Hybrid mode keeps KV and Drive local while forwarding selected capabilities through a valid CLI profile. Confirm the selected profile with `maypop status`; run `maypop auth` only when that check reports no valid authentication:
 
 ```json
 {
@@ -189,7 +191,7 @@ Connected mode skips local KV/Drive initialization and sends the app API surface
 }
 ```
 
-The repository must already be connected by `maypop init`, and the selected profile must have access to the app. Omit `profile` to use normal CLI selection, including `MAYPOP_PROFILE` and repository API URL matching. The Node development host reads the owner-only profile store written by `maypop auth`, mints an app-scoped session itself, and never exposes the long-lived CLI credential or refresh token to the iframe. Connected mode forwards linked MCP discovery and tool calls with the rest of the app API without another capability flag.
+The repository must already be connected by `maypop init`, and the selected profile must have access to the app. Confirm that profile with `maypop status` before starting connected development; authenticate only if the check fails. Omit `profile` to use normal CLI selection, including `MAYPOP_PROFILE` and repository API URL matching. The Node development host reads the owner-only CLI profile store, mints an app-scoped session itself, and never exposes the long-lived CLI credential or refresh token to the iframe. Connected mode forwards linked MCP discovery and tool calls with the rest of the app API without another capability flag.
 
 Real notification delivery requires connected mode plus `"notifications": "live"`. Use `"disabled"` to remove notification permission. The safe default in every mode is `"inspect"`.
 
