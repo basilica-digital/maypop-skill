@@ -4,7 +4,7 @@ Use this reference for architecture, implementation planning, compatibility asse
 
 ## SDK lifecycle
 
-This reference targets Maypop SDK v1.1. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `window.maypop` object.
+This reference targets Maypop SDK v1.2. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `window.maypop` object.
 
 Always wait for the host handshake:
 
@@ -16,7 +16,7 @@ Only then read identity, mode, permissions, theme, or other capabilities. The se
 
 This differs from the local framework host described below. Studio preview is attached to real Maypop services; the default sandbox uses development-only identity, audience, KV, Drive, MCP, sharing, and notification behavior on the developer's machine. Hybrid and connected modes can opt into authenticated services.
 
-Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, confirm that a package-based app uses v1.1, then inspect its installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
+Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, confirm that a package-based app uses v1.2, then inspect its installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
 
 ## Capability map
 
@@ -25,7 +25,7 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 | `maypop.user`, `mode`, `permissions` | Viewer identity and access | Identity is pseudonymous and app-scoped; permissions can change at runtime |
 | `maypop.kv` | JSON-serializable persistent records | One shared store per app; subscribe for rendered/live state |
 | `maypop.drive` | Durable app files | Store file identity or content id, not temporary signed or object URLs |
-| `maypop.ai` | Model, image, video, audio, and transcription calls | Uses platform access; capability and limits belong to the viewer/session |
+| `maypop.ai` | Decisions (`decide`), chat and streaming, image, video, audio, and transcription calls | Uses platform access; capability and limits belong to the viewer/session |
 | `maypop.agent` | Persistent or ephemeral conversational agents with tools | Give agents explicit tools over app data rather than implicit authority |
 | `maypop.members()` | App roster and recent activity | Roster belongs to the app's whole audience, not one group |
 | `maypop.apps` | Ask the host to open another known app | Does not enumerate apps; host may refuse |
@@ -51,14 +51,24 @@ Do not replace shared or cross-device state with `localStorage`. Local browser s
 
 For per-user data, use the app-scoped viewer id in the key design and provide a saved-data policy that restricts access as intended. Never assume an app-owned store is private to the writer merely because the key contains a user id.
 
+## Choosing an AI call
+
+Use `maypop.ai.decide()` when the answer is one of a fixed set: classify input, route a message to a screen, gate a destructive action, or verify and rank something a chat model produced. It asks a decision model closed questions (yes/no, pick one, rate on an ordered scale) about a `state` and resolves with typed answers and calibrated probabilities. Expect roughly 70–500 ms per call and a small fraction of a chat call's cost, so it can run on every interaction without an explicit user gesture. It never returns free text and does not stream; there is no `model` field because the platform pins the decision model. The upstream model is in preview, so new optional response fields may appear.
+
+Use `maypop.ai.chat()` or `maypop.ai.stream()` for generated text, and `maypop.agent` when the assistant needs tools over app data or a persistent conversation. Do not ask a chat model for a JSON label, boolean, or score; that is a decision. Pair the two: decide first, then generate.
+
+Tune each probability threshold to the cost of that mistake rather than 0.5: act on a low probability when gating something irreversible, and require a high one before auto-applying a label the user cannot easily undo. When a `choice` answer's top two `probabilities` are close, show both or ask instead of picking silently.
+
+`decide` is gated by the same `ai:use` scope and limits as `chat`, so it fails with the same `maypop/ai-limit`, `maypop/sign-in-required`, and `maypop/forbidden` errors. The pure local sandbox never grants `ai:use`; test decisions in hybrid mode with the `ai` remote capability.
+
 ## Develop with the local host
 
 The `@basilica-digital/maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, members, KV, Drive, agents, multiplayer, MCP, sharing, and notification inspection through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for the default local loop.
 
-Inspect the project's manifest and lockfile first. If the SDK is absent or older than v1.1, install or update it with the project's existing package manager so the manifest and lockfile stay in sync. Keep it as an application dependency when browser code imports it. For example, the current v1.1 release is:
+Inspect the project's manifest and lockfile first. If the SDK is absent or older than v1.2, install or update it with the project's existing package manager so the manifest and lockfile stay in sync. Keep it as an application dependency when browser code imports it. For example, the current v1.2 release is:
 
 ```sh
-pnpm add @basilica-digital/maypop-sdk@1.1.0
+pnpm add @basilica-digital/maypop-sdk@1.2.0
 ```
 
 Use the equivalent `npm`, Yarn, or Bun command when that is what the project already uses. Do not introduce a second package manager merely to add the SDK.
@@ -179,7 +189,7 @@ Hybrid mode keeps KV and Drive local while forwarding selected capabilities thro
 }
 ```
 
-`ai` covers chat, streaming, images, video, audio, transcription, and agent model calls and consumes the selected account's real allowance. Agent execution stays in the local page while its model calls use the authenticated AI capability. `members` reads the real app roster. `link` performs server-side URL unfurling. `mcp` exposes the app's real linked integrations; connect and link them with `maypop mcp connect` and `maypop mcp link`. `multiplayer` uses the real ephemeral room service and also exposes the real member roster needed for peer display. KV, Drive, sharing, and notifications remain local. Do not configure real `mcp` and `.maypop/mcp.json` fixtures together in hybrid mode.
+`ai` covers chat, streaming, decisions, images, video, audio, transcription, and agent model calls and consumes the selected account's real allowance. Agent execution stays in the local page while its model calls use the authenticated AI capability. `members` reads the real app roster. `link` performs server-side URL unfurling. `mcp` exposes the app's real linked integrations; connect and link them with `maypop mcp connect` and `maypop mcp link`. `multiplayer` uses the real ephemeral room service and also exposes the real member roster needed for peer display. KV, Drive, sharing, and notifications remain local. Do not configure real `mcp` and `.maypop/mcp.json` fixtures together in hybrid mode.
 
 Connected mode skips local KV/Drive initialization and sends the app API surface to the real app while preserving the local host handshake:
 

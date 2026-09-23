@@ -23,10 +23,10 @@ Do not call every Maypop app “full stack.” A standalone static app may use n
 - For an explanation, distinguish app code, the Maypop host, and Maypop platform services. Correct misconceptions directly.
 - For compatibility assessment, inspect the supplied project and classify it as already compatible, convertible, or dependent on a separate backend.
 - For interface or product design, read [references/host-environment.md](references/host-environment.md) so the app complements Maypop's authentication and surrounding chrome instead of duplicating them.
-- For architecture, implementation, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Target `@basilica-digital/maypop-sdk` v1.1 and update an older declared dependency with the project's package manager before relying on v1.1 behavior. Prefer its framework host for Vite, Rsbuild, and Next.js projects that need local data, authenticated AI, notification inspection, or a connected app session before deployment.
+- For architecture, implementation, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Target `@basilica-digital/maypop-sdk` v1.2 and update an older declared dependency with the project's package manager before relying on v1.2 behavior. Prefer its framework host for Vite, Rsbuild, and Next.js projects that need local data, authenticated AI, notification inspection, or a connected app session before deployment.
 - For CLI installation, authentication, initialization, `maypop.toml`, metadata, profiles, AI media generation, or publishing, read [references/cli.md](references/cli.md). Check the selected session with `maypop status` before proposing `maypop auth`; authenticate only when status reports no valid signed-in account. Use the installed command's `--help` output as the final authority on available flags.
 - When the harness has no native image, audio, or video generator, use authenticated `maypop ai` commands as the fallback for deliberate app assets. Generation consumes credits and changes a local file, so require the user's authorization, run each paid request only once, and never retry it automatically.
-- For exact SDK code, inspect the installed v1.1 `@basilica-digital/maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
+- For exact SDK code, inspect the installed v1.2 `@basilica-digital/maypop-sdk` declarations or the host's `/sdk/v1.d.ts` contract before writing code. Never infer method names or signatures from this skill's summary.
 - For publication, inspect `maypop.toml`, framework configuration, Git state, and build output. Authentication, initialization, metadata application, and publication change local or remote state; do not run them without explicit authorization.
 
 ## Write useful listing metadata
@@ -56,7 +56,7 @@ Map requirements deliberately:
 | Login and user identity | Host session and `maypop.user`; never add a second login system by default |
 | Shared structured state | `maypop.kv` and an explicit saved-data access policy |
 | User or app files | `maypop.drive` |
-| Model calls or an in-app assistant | `maypop.ai` or `maypop.agent` |
+| Model calls, classification/routing, or an in-app assistant | `maypop.ai` (`decide` for closed questions, `chat`/`stream` for text) or `maypop.agent` |
 | App audience and recent presence | `maypop.members()` |
 | Ephemeral live sessions | `maypop.multiplayer` |
 | External connected services | `maypop.mcp`, discovered at runtime |
@@ -83,6 +83,7 @@ For a framework project, report:
 - Use durable Maypop storage instead of `localStorage` for shared or cross-device state.
 - Use persistent KV for durable collaboration and multiplayer only for ephemeral presence or low-latency sessions.
 - Feature-detect optional integrations and degrade gracefully.
+- Use `maypop.ai.decide()` for classification, routing, gating, and verification: closed questions with a fixed set of answers. Never ask a chat model to return a JSON label for those. Choose each probability threshold by the cost of the mistake, not 0.5, and never display a decision as text; generate text with `chat` or `stream` after deciding.
 - Treat Studio iterations as editing history and published versions as released artifacts; do not use the terms interchangeably.
 
 ## Communicate uncertainty precisely
