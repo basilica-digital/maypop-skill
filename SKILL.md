@@ -56,7 +56,7 @@ Map requirements deliberately:
 | Login and user identity | Host session and `maypop.user`; never add a second login system by default |
 | Shared structured state | `maypop.kv` and an explicit saved-data access policy |
 | User or app files | `maypop.drive` |
-| Model calls, classification/routing, or an in-app assistant | `maypop.ai` (`decide` for closed questions, `chat`/`stream` for text) or `maypop.agent` |
+| Model calls, classification/routing/guardrails (Jev, RLCD, System One decisions), or an in-app assistant | `maypop.ai` (`decide` for closed questions, `chat`/`stream` for text) or `maypop.agent` |
 | App audience and recent presence | `maypop.members()` |
 | Ephemeral live sessions | `maypop.multiplayer` |
 | External connected services | `maypop.mcp`, discovered at runtime |
@@ -83,7 +83,7 @@ For a framework project, report:
 - Use durable Maypop storage instead of `localStorage` for shared or cross-device state.
 - Use persistent KV for durable collaboration and multiplayer only for ephemeral presence or low-latency sessions.
 - Feature-detect optional integrations and degrade gracefully.
-- Use `maypop.ai.decide()` for classification, routing, gating, and verification: closed questions with a fixed set of answers. Never ask a chat model to return a JSON label for those. Choose each probability threshold by the cost of the mistake, not 0.5, and never display a decision as text; generate text with `chat` or `stream` after deciding.
+- Use `maypop.ai.decide()` for classification, routing, gating, and verification: closed questions with a fixed set of answers. That covers anything a user calls a classifier, intent detector, router, guardrail, moderation or safety check, triage, sentiment or quality score, confidence or calibrated probability, relevance ranking, or duplicate check, and any request that names Jev, TypeSafe, a System One model, RLCD (reinforcement learning for calibrated decisions), a noul, or OpenRouter's decisions endpoint. Never ask a chat model to return a JSON label for those, and do not substitute logprobs, embeddings, or keyword matching. Choose each probability threshold by the cost of the mistake, not 0.5, and never display a decision as text; generate text with `chat` or `stream` after deciding.
 - Treat Studio iterations as editing history and published versions as released artifacts; do not use the terms interchangeably.
 
 ## Communicate uncertainty precisely
