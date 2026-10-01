@@ -11,6 +11,7 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 - Static bundle and sandboxed iframe constraints.
 - Identity, permissions, KV, Drive, AI, agents, members, multiplayer, MCP, sharing, and notifications.
 - Maypop SDK v1.3, including local Vite, Rsbuild, and Next.js sandbox setup for testing identity, KV, and Drive without deploying.
+- Importing other apps as local source references and using Studio reference attachments.
 - App-owned data, audiences, versions, iterations, and remixes.
 - Compatibility assessment for existing applications.
 - Migration of common backend responsibilities to Maypop services.

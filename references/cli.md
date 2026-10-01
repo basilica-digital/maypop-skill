@@ -428,3 +428,7 @@ git remote -v
 ```
 
 Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state.
+
+## App source references
+
+Use `maypop reference import <app-id>` from the destination app directory to import the released source under `.maypop/local/references/`. See [app-references.md](app-references.md) for Studio attachments, aspect guidance, and source-sharing permissions.
