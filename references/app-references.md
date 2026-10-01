@@ -4,7 +4,7 @@ Use this workflow when the user attaches another Maypop app as a reference or as
 
 ## Import the source
 
-From the destination app directory, import the reference by its app ID:
+With Maypop CLI v0.5.0 or newer, import the reference by its app ID from the destination app directory:
 
 ```sh
 maypop reference import <app-id>
