@@ -10,7 +10,7 @@ From the destination app directory, import the reference by its app ID:
 maypop reference import <app-id>
 ```
 
-The command uses the selected CLI account and imports the app's live released source into `.maypop/local/references/<app-id>/<snapshot>/`. It prints that relative directory. It does not create a new app, change this app's remote, install dependencies, run the reference, or publish anything. Use `--path <destination-app-directory>` when working outside the destination directory. Authentication and source-sharing permissions still apply: a visible app's editable source must be shared by its author unless it is your own app.
+The command uses the selected CLI account and imports the app's live released source into `.maypop/local/references/<app-id>/<snapshot>/`. It prints that relative directory. It does not create a new app, change this app's remote, install dependencies, run the reference, or publish anything. Use `--path <destination-app-directory>` when working outside the destination directory. The app must be visible to your account and either allow remixing or be authored by you. Public visibility or membership in a group does not grant source-reference permission on its own.
 
 ## Use a reference in Studio
 
