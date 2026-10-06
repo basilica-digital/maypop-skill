@@ -48,7 +48,7 @@ This is a default, not a prohibition. Repetition is justified when the element i
 - A document, story, dashboard, or game can have its own meaningful heading.
 - A branded website or marketing page can use its brand and hero title.
 - Internal tabs, breadcrumbs, or back buttons can navigate the app's own information architecture.
-- An object-specific action such as “Share result” or “Share this list” can call `maypop.share` with a deep path; label it specifically so it does not read as a duplicate global app-share button.
+- An object-specific action such as “Copy link to result” or “Share this list” copies `maypop.link.to(path)` or calls `maypop.share` with that deep path; label it specifically so it does not read as a duplicate global app-share button. See Deep links in the SDK reference.
 - Member avatars and profiles belong in the app when authorship, presence, assignment, or collaboration needs them—not merely to restate the current login.
 
 Ask whether the element helps someone operate the app's content. If it only repeats a fact or action already supplied by the shell, leave it to Maypop.

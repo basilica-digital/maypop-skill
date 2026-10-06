@@ -31,9 +31,21 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 | `maypop.apps` | Ask the host to open another known app | Does not enumerate apps; host may refuse |
 | `maypop.multiplayer` | Ephemeral rooms and peer-to-peer sessions | Use KV for durable state; use multiplayer for session state or low-latency traffic |
 | `maypop.mcp` | User-connected external services | Discover servers and tool schemas at runtime; never hardcode ids or credentials |
-| `maypop.link` | Server-side URL preview/unfurling | Useful where iframe CORS prevents fetching arbitrary pages |
-| `maypop.share` | Host share card and deep links | May require the app to be published and shared first |
+| `maypop.link` | Deep links into this app (`to`) and server-side URL previews (`unfurl`) | `unfurl` is useful where iframe CORS prevents fetching arbitrary pages |
+| `maypop.share` | Host share card holding a deep link | Unavailable in the Studio preview of an unpublished draft |
 | `maypop.notify` | Maypop and push notifications | Targets only people in the app's audience and is rate-limited |
+
+## Deep links
+
+A deep link opens the app on one screen: a list, a record, a result. The app is always loaded at its entry file; the screen arrives as a site-relative path such as `/item/42`, delivered in the iframe's `location.hash` and as `maypop.launchPath`. Opening the link needs the same access as opening the app.
+
+- Route the first screen from it. A hash router picks it up on its own. Any other router, or none, must read `maypop.launchPath` once after `maypop.ready()` and navigate to it; a path-based router never sees it in the URL.
+- Build links with `maypop.link.to(path)`. It is synchronous, so a share button can write it straight to the clipboard inside the click (`navigator.clipboard.writeText(maypop.link.to("/item/42"))`) or pass it to `navigator.share`. `maypop.link.to()` with no path is the app's own link. Never assemble the URL from `location`, the app id, or a hardcoded host: the app runs on a different origin from the link.
+- Use `maypop.share({ path, title })` only to show Maypop's own share card. It rejects with `maypop/share-unavailable` and an end-user message in the Studio preview of an unpublished draft; show that message.
+- Use the same path in `maypop.notify({ path })` so a notification opens the screen it is about.
+- Make every path the app hands out resolvable from a cold start: the record id must be in the path, not in memory or `localStorage`, and a missing or forbidden record should land on a useful screen instead of a blank one.
+
+The local host opens deep links the way Maypop does, so a link that lands correctly in development lands correctly once published.
 
 ## Authentication and authorization
 
@@ -116,7 +128,7 @@ export default withMaypop({
 });
 ```
 
-`withMaypop` adds its proxy only during `next dev`; production builds retain the static-export configuration. The Vite and Rsbuild plugins likewise apply only to their development servers. Run the framework's normal development command and open its normal URL. The local Maypop host wraps the app and preserves routed deep links.
+`withMaypop` adds its proxy only during `next dev`; production builds retain the static-export configuration. The Vite and Rsbuild plugins likewise apply only to their development servers. Run the framework's normal development command and open its normal URL. The local Maypop host wraps the app.
 
 The default sandbox viewer is a synthetic signed-in admin named `Developer`. State for this machine persists across server restarts in `.maypop/local/`:
 
@@ -243,4 +255,5 @@ At minimum, verify:
 - SDK initialization waits for readiness and handles read-only sessions.
 - Shared data and file behavior use the intended app-wide or per-user policy.
 - Optional AI, agent, multiplayer, integration, share, and notification features work in the intended sandbox, hybrid, or connected mode and fail gracefully elsewhere.
+- Every deep link the app hands out, opened in a fresh tab, lands on its screen.
 - The app works at iframe dimensions and does not assume the top-level browser window.
