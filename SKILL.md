@@ -84,7 +84,7 @@ For a framework project, report:
 - Use durable Maypop storage instead of `localStorage` for shared or cross-device state.
 - Use persistent KV for durable collaboration and multiplayer only for ephemeral presence or low-latency sessions.
 - Feature-detect optional integrations and degrade gracefully.
-- Deep links arrive as `maypop.launchPath`, not as the page path: route the first screen from it, and build links with `maypop.link.to(path)`, never from `location`.
+- Deep links arrive as `maypop.launchPath`, not as the page path: render the first screen from it without waiting for `maypop.ready()`, and build links with `maypop.link.to(path)`, never from `location`.
 - Use `maypop.ai.decide()` for classification, routing, gating, and verification: closed questions with a fixed set of answers. That covers anything a user calls a classifier, intent detector, router, guardrail, moderation or safety check, triage, sentiment or quality score, confidence or calibrated probability, relevance ranking, or duplicate check, and any request that names Jev, TypeSafe, a System One model, RLCD (reinforcement learning for calibrated decisions), a noul, or OpenRouter's decisions endpoint. Never ask a chat model to return a JSON label for those, and do not substitute logprobs, embeddings, or keyword matching. Choose each probability threshold by the cost of the mistake, not 0.5, and never display a decision as text; generate text with `chat` or `stream` after deciding.
 - Treat Studio iterations as editing history and published versions as released artifacts; do not use the terms interchangeably.
 
