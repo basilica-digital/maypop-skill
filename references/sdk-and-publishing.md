@@ -4,7 +4,7 @@ Use this reference for architecture, implementation planning, compatibility asse
 
 ## SDK lifecycle
 
-This reference targets Maypop SDK v1.3. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `window.maypop` object.
+This reference targets Maypop SDK v1.3. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `maypop` object. The host does not inject it: `window.maypop` exists only after the app imports the package or loads the script, so an app that uses any SDK feature, deep links included, installs it first. Never read a `window.maypop` the app did not load.
 
 Always wait for the host handshake:
 
@@ -37,7 +37,7 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 
 ## Deep links
 
-A deep link opens the app on one screen: a list, a record, a result. The app is always loaded at its entry file; the screen arrives as a site-relative path such as `/item/42`, delivered in the iframe's `location.hash` and as `maypop.launchPath`. Opening the link needs the same access as opening the app.
+A deep link opens the app on one screen: a list, a record, a result. The app is always loaded at its entry file; the screen arrives as a site-relative path such as `/item/42`, delivered in the iframe's `location.hash` and as `maypop.launchPath`. Opening the link needs the same access as opening the app. An app that hands out links imports the SDK even when it uses nothing else from it; without it there is no `link.to`, and any fallback built from `location` copies the preview's own origin, which nobody else can open.
 
 - Open on that screen in the first render. `maypop.launchPath` is set the moment the SDK loads, before `maypop.ready()`, so use it as the initial state or the router's initial location: `useState(() => photoIdFrom(maypop.launchPath))`, not an effect that waits for `ready()` and then navigates, which paints the first screen and then jumps. A hash router picks it up on its own; a path-based router never sees it in the URL. Load the screen's data after `ready()` as usual, showing that screen's own loading state.
 - Build links with `maypop.link.to(path)`. It is synchronous, so a share button can write it straight to the clipboard inside the click (`navigator.clipboard.writeText(maypop.link.to("/item/42"))`) or pass it to `navigator.share`. `maypop.link.to()` with no path is the app's own link. Never assemble the URL from `location`, the app id, or a hardcoded host: the app runs on a different origin from the link.
