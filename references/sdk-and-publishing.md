@@ -4,7 +4,7 @@ Use this reference for architecture, implementation planning, compatibility asse
 
 ## SDK lifecycle
 
-This reference targets Maypop SDK v1.3. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `window.maypop` object.
+This reference targets Maypop SDK v1.4. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `maypop` object. The host does not inject it: `window.maypop` exists only after the app imports the package or loads the script, so an app that uses any SDK feature, deep links included, installs it first. Never read a `window.maypop` the app did not load.
 
 Always wait for the host handshake:
 
@@ -16,7 +16,7 @@ Only then read identity, mode, permissions, theme, or other capabilities. The se
 
 This differs from the local framework host described below. Studio preview is attached to real Maypop services; the default sandbox uses development-only identity, audience, KV, Drive, MCP, sharing, and notification behavior on the developer's machine. Hybrid and connected modes can opt into authenticated services.
 
-Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, confirm that a package-based app uses v1.3, then inspect its installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
+Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, confirm that a package-based app uses v1.4, then inspect its installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
 
 ## Capability map
 
@@ -31,9 +31,21 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 | `maypop.apps` | Ask the host to open another known app | Does not enumerate apps; host may refuse |
 | `maypop.multiplayer` | Ephemeral rooms and peer-to-peer sessions | Use KV for durable state; use multiplayer for session state or low-latency traffic |
 | `maypop.mcp` | User-connected external services | Discover servers and tool schemas at runtime; never hardcode ids or credentials |
-| `maypop.link` | Server-side URL preview/unfurling | Useful where iframe CORS prevents fetching arbitrary pages |
-| `maypop.share` | Host share card and deep links | May require the app to be published and shared first |
+| `maypop.link` | Deep links into this app (`to`) and server-side URL previews (`unfurl`) | `unfurl` is useful where iframe CORS prevents fetching arbitrary pages |
+| `maypop.share` | Host share card holding a deep link | Unavailable in the Studio preview of an unpublished draft |
 | `maypop.notify` | Maypop and push notifications | Targets only people in the app's audience and is rate-limited |
+
+## Deep links
+
+A deep link opens the app on one screen: a list, a record, a result. The app is always loaded at its entry file; the screen arrives as a site-relative path such as `/item/42`, delivered in the iframe's `location.hash` and as `maypop.launchPath`. Opening the link needs the same access as opening the app. An app that hands out links imports the SDK even when it uses nothing else from it; without it there is no `link.to`, and any fallback built from `location` copies the preview's own origin, which nobody else can open.
+
+- Open on that screen in the first render. `maypop.launchPath` is set the moment the SDK loads, before `maypop.ready()`, so use it as the initial state or the router's initial location: `useState(() => photoIdFrom(maypop.launchPath))`, not an effect that waits for `ready()` and then navigates, which paints the first screen and then jumps. A hash router picks it up on its own; a path-based router never sees it in the URL. Load the screen's data after `ready()` as usual, showing that screen's own loading state.
+- Build links with `maypop.link.to(path)`. It is synchronous, so a share button can write it straight to the clipboard inside the click (`navigator.clipboard.writeText(maypop.link.to("/item/42"))`) or pass it to `navigator.share`. `maypop.link.to()` with no path is the app's own link. Never assemble the URL from `location`, the app id, or a hardcoded host: the app runs on a different origin from the link.
+- Use `maypop.share({ path, title })` only to show Maypop's own share card. It rejects with `maypop/share-unavailable` and an end-user message in the Studio preview of an unpublished draft; show that message.
+- Use the same path in `maypop.notify({ path })` so a notification opens the screen it is about.
+- Make every path the app hands out resolvable from a cold start: the record id must be in the path, not in memory or `localStorage`, and a missing or forbidden record should land on a useful screen instead of a blank one.
+
+The local host opens deep links the way Maypop does, so a link that lands correctly in development lands correctly once published.
 
 ## Authentication and authorization
 
@@ -65,10 +77,10 @@ Tune each probability threshold to the cost of that mistake rather than 0.5: act
 
 The `@basilica-digital/maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, members, KV, Drive, agents, multiplayer, MCP, sharing, and notification inspection through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for the default local loop.
 
-Inspect the project's manifest and lockfile first. If the SDK is absent or older than v1.3, install or update it with the project's existing package manager so the manifest and lockfile stay in sync. Keep it as an application dependency when browser code imports it. For example, to get the current v1.3 release or a later compatible one:
+Inspect the project's manifest and lockfile first. If the SDK is absent or older than v1.4, install or update it with the project's existing package manager so the manifest and lockfile stay in sync. Keep it as an application dependency when browser code imports it. For example, to get the current v1.4 release or a later compatible one:
 
 ```sh
-pnpm add @basilica-digital/maypop-sdk@^1.3.0
+pnpm add @basilica-digital/maypop-sdk@^1.4.0
 ```
 
 Use the equivalent `npm`, Yarn, or Bun command when that is what the project already uses. Do not introduce a second package manager merely to add the SDK.
@@ -116,7 +128,7 @@ export default withMaypop({
 });
 ```
 
-`withMaypop` adds its proxy only during `next dev`; production builds retain the static-export configuration. The Vite and Rsbuild plugins likewise apply only to their development servers. Run the framework's normal development command and open its normal URL. The local Maypop host wraps the app and preserves routed deep links.
+`withMaypop` adds its proxy only during `next dev`; production builds retain the static-export configuration. The Vite and Rsbuild plugins likewise apply only to their development servers. Run the framework's normal development command and open its normal URL. The local Maypop host wraps the app.
 
 The default sandbox viewer is a synthetic signed-in admin named `Developer`. State for this machine persists across server restarts in `.maypop/local/`:
 
@@ -243,4 +255,5 @@ At minimum, verify:
 - SDK initialization waits for readiness and handles read-only sessions.
 - Shared data and file behavior use the intended app-wide or per-user policy.
 - Optional AI, agent, multiplayer, integration, share, and notification features work in the intended sandbox, hybrid, or connected mode and fail gracefully elsewhere.
+- Every deep link the app hands out, opened in a fresh tab, lands on its screen.
 - The app works at iframe dimensions and does not assume the top-level browser window.
