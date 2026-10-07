@@ -4,7 +4,7 @@ Use this reference for architecture, implementation planning, compatibility asse
 
 ## SDK lifecycle
 
-This reference targets Maypop SDK v1.3. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `maypop` object. The host does not inject it: `window.maypop` exists only after the app imports the package or loads the script, so an app that uses any SDK feature, deep links included, installs it first. Never read a `window.maypop` the app did not load.
+This reference targets Maypop SDK v1.4. The browser SDK is published as `@basilica-digital/maypop-sdk` and is also available through the hosted `/sdk/v1.js` script, depending on the project. Both forms expose the same `maypop` object. The host does not inject it: `window.maypop` exists only after the app imports the package or loads the script, so an app that uses any SDK feature, deep links included, installs it first. Never read a `window.maypop` the app did not load.
 
 Always wait for the host handshake:
 
@@ -16,7 +16,7 @@ Only then read identity, mode, permissions, theme, or other capabilities. The se
 
 This differs from the local framework host described below. Studio preview is attached to real Maypop services; the default sandbox uses development-only identity, audience, KV, Drive, MCP, sharing, and notification behavior on the developer's machine. Hybrid and connected modes can opt into authenticated services.
 
-Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, confirm that a package-based app uses v1.3, then inspect its installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
+Exact types and signatures are defined by the current SDK declarations. Before implementing a capability, confirm that a package-based app uses v1.4, then inspect its installed `@basilica-digital/maypop-sdk` types, a locally provided SDK source, or the host's `/sdk/v1.d.ts`. Do not guess.
 
 ## Capability map
 
@@ -77,10 +77,10 @@ Tune each probability threshold to the cost of that mistake rather than 0.5: act
 
 The `@basilica-digital/maypop-sdk` package includes local host integrations for Vite, Rsbuild, and Next.js. They let an app use the normal SDK handshake and exercise identity, members, KV, Drive, agents, multiplayer, MCP, sharing, and notification inspection through the framework's ordinary development server. CLI authentication, `maypop init`, and deployment are not required for the default local loop.
 
-Inspect the project's manifest and lockfile first. If the SDK is absent or older than v1.3, install or update it with the project's existing package manager so the manifest and lockfile stay in sync. Keep it as an application dependency when browser code imports it. For example, to get the current v1.3 release or a later compatible one:
+Inspect the project's manifest and lockfile first. If the SDK is absent or older than v1.4, install or update it with the project's existing package manager so the manifest and lockfile stay in sync. Keep it as an application dependency when browser code imports it. For example, to get the current v1.4 release or a later compatible one:
 
 ```sh
-pnpm add @basilica-digital/maypop-sdk@^1.3.0
+pnpm add @basilica-digital/maypop-sdk@^1.4.0
 ```
 
 Use the equivalent `npm`, Yarn, or Bun command when that is what the project already uses. Do not introduce a second package manager merely to add the SDK.
