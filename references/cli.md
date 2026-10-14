@@ -10,13 +10,14 @@ maypop --help
 maypop auth --help
 maypop init --help
 maypop publish --help
+maypop migrate --help
 maypop app --help
 maypop ai --help
 maypop mcp --help
 maypop profile --help
 ```
 
-The public workflow consists of `auth`, `init`, `publish`, `info`, `app apply`, `status`, `ai`, `mcp`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
+The public workflow consists of `auth`, `init`, `publish`, `migrate`, `info`, `app apply`, `status`, `ai`, `mcp`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
 
 ## Install the CLI
 
@@ -274,7 +275,7 @@ Available initial visibility values are `private`, `unlisted`, and `public`; the
 1. Initializes a Git repository when necessary.
 2. Creates an unpublished app identity on Maypop.
 3. Records the app id and API URL in repository-local Git configuration.
-4. Configures the Maypop Git service as `origin` with a repository-local credential helper.
+4. Sets `origin` to the app repository at `/git/apps/{appId}` on the API host, with a repository-local `maypop git-credential` helper.
 5. Creates or validates `maypop.toml` and detects the framework adapter.
 
 It refuses to continue if the repository is already attached to a Maypop app or already has an `origin` remote. Never delete or overwrite an existing remote automatically. If the user wants to retain a GitHub remote, inspect it first and offer to rename it deliberately, for example:
@@ -362,11 +363,11 @@ maypop publish --changelog "Add shared collections"
 
 Publication operates on the exact committed Git `HEAD`. It:
 
-1. Verifies the repository is connected to the expected Maypop app and `origin` is the matching Maypop Git remote.
+1. Verifies the repository is connected to the expected Maypop app. If `origin` is still the older per-user remote, it is rewritten to `/git/apps/{appId}` before the clean-tree check, build, and push. There is no flag to keep the old remote. A later failure (dirty tree, bad HEAD, failed build, or rejected push) leaves `origin` on the app repository; do not point it back at the per-user URL and do not `git push --force`. `maypop migrate` does that move and push without publishing a version.
 2. Refuses a dirty worktree; commit or stash first.
 3. Builds using `[build]`.
 4. Refuses a build that modifies tracked files.
-5. Pushes `HEAD` to the Maypop Git remote's `main` branch.
+5. Pushes `HEAD` to the app repository's `main` branch as a normal Git pack. It does not push to the older remote.
 6. Uploads and validates the static build output.
 7. Records the source commit and bundle as the next immutable app version.
 
