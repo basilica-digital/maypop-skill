@@ -1,6 +1,6 @@
 # Maypop CLI
 
-Read this reference when a request involves installing the `maypop` command, authentication, project initialization, `maypop.toml`, app metadata, profiles, or publication.
+Read this reference when a request involves installing the `maypop` command, authentication, project initialization, `maypop.toml`, app metadata, profiles, publication, or the KV and Drive data a published app has saved.
 
 The CLI is a Rust Clap application. Prefer its self-documenting command tree over recalled syntax:
 
@@ -15,9 +15,10 @@ maypop app --help
 maypop ai --help
 maypop mcp --help
 maypop profile --help
+maypop data --help
 ```
 
-The public workflow consists of `auth`, `init`, `publish`, `migrate`, `info`, `app apply`, `status`, `ai`, `mcp`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
+The public workflow consists of `auth`, `init`, `publish`, `migrate`, `info`, `app apply`, `status`, `ai`, `mcp`, `profile`, and `data`. Do not teach hidden or maintainer-only commands as normal app workflows.
 
 ## Install the CLI
 
@@ -428,7 +429,44 @@ git status --short
 git remote -v
 ```
 
-Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state.
+Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state. A `maypop data` write or delete prints a dry run until the user agrees to `--yes`. The next section says when to use it.
+
+## Inspect and change saved data
+
+`maypop data` lists, reads, writes, and deletes KV entries and Drive files in a published app. Use it to see what real users saved, to debug why saved data looks wrong, or to check data after a schema change. Do not use it to test the local development server. Data created there lives in the framework sandbox; read [sdk-and-publishing.md](sdk-and-publishing.md) and test with that host.
+
+The command shipped in CLI v0.6.0. If `maypop data --help` does not list it, the installed CLI is older. Check `maypop status` first; the selected profile has to be authenticated. Run the command inside the app repository, or pass `--app <id>`. Outside an initialized repository, `--app` is required. `--json` prints machine-readable JSON. Both flags belong to `maypop data` and apply to every subcommand.
+
+Only the app's owner or an app admin can run it. A group the app is published to never grants that access. A 403 means this account is not the owner or an app admin, or the credential is one a Studio sandbox holds. A 404 from a list means this account cannot see the app. A 404 on one key or file means that entry is absent. An account with no access gets that same status.
+
+List keys or file names before reading a value. Fetch one entry only when you need that entry.
+
+```sh
+maypop data kv ls --prefix notes/ --limit 20
+maypop data kv get theme
+maypop data drive ls --prefix images/
+maypop data drive get images/hero.png --output hero.png
+```
+
+`kv ls` and `drive ls` return one page. `--prefix` filters that page. `--limit` is from 1 to 100; the server default is 50. Pass `--cursor` from the previous page to continue. Without `--json` the CLI prints `Next cursor:`. With `--json` the field is `nextCursor`.
+
+Do not paste other people's personal data into code, commits, or chat beyond what the user needs. A list of keys, sizes, and authors is usually enough. `drive get` writes the file bytes, so use `--output` for a file you should keep out of the transcript.
+
+A write or delete names one key or one file. There is no bulk change and no prefix delete. `kv set`, `kv rm`, `drive put`, and `drive rm` print the change and leave the app unchanged unless `--yes` is present. Show that dry run to the user and get their go-ahead before you add `--yes`.
+
+```sh
+maypop data kv set theme '{"color":"green"}'
+maypop data kv set config @config.json
+maypop data kv rm theme
+maypop data drive put ./hero.png images/hero.png
+maypop data drive rm images/hero.png
+```
+
+`kv set` takes a JSON value, or `@file` containing JSON. A text value is a JSON string, for example `"hello"`. `kv rm` deletes that one key.
+
+`drive put` adds a row. The name defaults to the local file's name. When that name already exists, the command adds another row and leaves the earlier ones in place. They still appear in `drive ls`, and `drive get` returns the newest. `drive rm` removes every live row with that exact name. The dry run says how many.
+
+An agent running in a Studio sandbox has a read-only credential. Listing, reading, and a dry run still work. `--yes` returns 403 and leaves the app unchanged. Tell the user to run the write on their own account.
 
 ## App source references
 
