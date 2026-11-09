@@ -429,15 +429,17 @@ git status --short
 git remote -v
 ```
 
-Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state. A `maypop data` write or delete prints a dry run until the user agrees to `--yes`. The next section says when to use it.
+Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state. A `maypop data` write or delete prints a dry run and changes nothing. Never pass `--yes` on your own. The next section says when.
 
 ## Inspect and change saved data
 
 `maypop data` lists, reads, writes, and deletes KV entries and Drive files in a published app. Use it to see what real users saved, to debug why saved data looks wrong, or to check data after a schema change. Do not use it to test the local development server. Data created there lives in the framework sandbox; read [sdk-and-publishing.md](sdk-and-publishing.md) and test with that host.
 
-The command shipped in CLI v0.6.0. If `maypop data --help` does not list it, the installed CLI is older. Check `maypop status` first; the selected profile has to be authenticated. Run the command inside the app repository, or pass `--app <id>`. Outside an initialized repository, `--app` is required. `--json` prints machine-readable JSON. Both flags belong to `maypop data` and apply to every subcommand.
+Never pass `--yes` on your own. `kv set`, `kv rm`, `drive put`, and `drive rm` print the change and leave the app unchanged unless `--yes` is present. Run the command without it. The dry runs of `kv set` and `kv rm` print the stored value, so warn the user before you show that output. Pass `--yes` only for the exact command the user approved after seeing its dry run. A different key, file, or value, or a retry after a failure, needs a new dry run and a new go-ahead. A write or delete names one key or one file. There is no bulk change and no prefix delete.
 
-Only the app's owner or an app admin can run it. A group the app is published to never grants that access. A 403 means this account is not the owner or an app admin, or the credential is one a Studio sandbox holds. A 404 from a list means this account cannot see the app. A 404 on one key or file means that entry is absent. An account with no access gets that same status.
+The command shipped in CLI v0.6.0. If `maypop data --help` does not list it, the installed CLI is older. Check `maypop status` first; the selected profile has to be authenticated. Run the command inside the app repository, or pass `--app <id>`. Outside an initialized repository, `--app` is required. `--app` and `--json` belong to `maypop data` and apply to every subcommand. `--json` prints machine-readable JSON. `drive get --json` prints the file's metadata and a download `url`, not the bytes. `--output` writes the bytes and, with `--json`, still prints that metadata. Do not paste the URL.
+
+Only the app's owner or an app admin can run it. A group the app is published to never grants that access. A 403 means this account can reach the app but is not its owner or an app admin (a non-admin member, for example), or the credential is one a Studio sandbox holds. A 404 from a list means the app does not exist or this account has no access to it. A 404 on one key or file means that entry is absent, or this account has no access to the app. The CLI cannot tell those two apart, so check with a list first.
 
 List keys or file names before reading a value. Fetch one entry only when you need that entry.
 
@@ -445,14 +447,12 @@ List keys or file names before reading a value. Fetch one entry only when you ne
 maypop data kv ls --prefix notes/ --limit 20
 maypop data kv get theme
 maypop data drive ls --prefix images/
-maypop data drive get images/hero.png --output hero.png
+maypop data drive get images/hero.png --output "$TMPDIR/hero.png"
 ```
 
-`kv ls` and `drive ls` return one page. `--prefix` filters that page. `--limit` is from 1 to 100; the server default is 50. Pass `--cursor` from the previous page to continue. Without `--json` the CLI prints `Next cursor:`. With `--json` the field is `nextCursor`.
+`kv ls` and `drive ls` return one page. `--prefix` limits the listing to keys or names that start with it, and the page is cut after that filter, so a page holds up to `--limit` matches. `--limit` is from 1 to 100; the server default is 50. Pass `--cursor` from the previous page to continue. Without `--json` the CLI prints `Next cursor:`. With `--json` the field is `nextCursor`.
 
-Do not paste other people's personal data into code, commits, or chat beyond what the user needs. A list of keys, sizes, and authors is usually enough. `drive get` writes the file bytes, so use `--output` for a file you should keep out of the transcript.
-
-A write or delete names one key or one file. There is no bulk change and no prefix delete. `kv set`, `kv rm`, `drive put`, and `drive rm` print the change and leave the app unchanged unless `--yes` is present. Show that dry run to the user and get their go-ahead before you add `--yes`.
+Never copy values or file contents that other people saved into code, commits, fixtures, tests, or `maypop.toml`. Show the user only what the task needs. A list of keys, sizes, and authors is usually enough. `drive get` writes the file bytes, so point `--output` at a path outside the repository, such as a temporary directory. The dry runs of `kv set` and `kv rm` print the stored value; warn the user before you show that output, and do not copy it.
 
 ```sh
 maypop data kv set theme '{"color":"green"}'
@@ -462,9 +462,9 @@ maypop data drive put ./hero.png images/hero.png
 maypop data drive rm images/hero.png
 ```
 
-`kv set` takes a JSON value, or `@file` containing JSON. A text value is a JSON string, for example `"hello"`. `kv rm` deletes that one key.
+`kv set` takes a JSON value, or `@file` containing JSON. A text value is a JSON string, so keep its quotes through the shell: `'"hello"'`. A bare `hello` is not JSON and the command fails. `kv rm` deletes that one key.
 
-`drive put` adds a row. The name defaults to the local file's name. When that name already exists, the command adds another row and leaves the earlier ones in place. They still appear in `drive ls`, and `drive get` returns the newest. `drive rm` removes every live row with that exact name. The dry run says how many.
+`drive put` adds a row. It does not replace one. The name defaults to the local file's name. When that name already exists, the new row is added beside the earlier ones. They still appear in `drive ls`, and `drive get` returns the newest. `drive rm` removes every live row with that exact name. Its dry run says how many, and it cannot drop just one of them. Replacing a file means asking the user which result they want before any dry run. The dry run does not check policy, quota, or conflicts. Those can still reject the filing after `--yes`, and the file is uploaded before that check. The error names the upload's cid. Report the rejection and do not retry it.
 
 An agent running in a Studio sandbox has a read-only credential. Listing, reading, and a dry run still work. `--yes` returns 403 and leaves the app unchanged. Tell the user to run the write on their own account.
 
