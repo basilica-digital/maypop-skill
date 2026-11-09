@@ -1,6 +1,6 @@
 # Maypop CLI
 
-Read this reference when a request involves installing the `maypop` command, authentication, project initialization, `maypop.toml`, app metadata, profiles, or publication.
+Read this reference when a request involves installing the `maypop` command, authentication, project initialization, `maypop.toml`, app metadata, profiles, publication, or the KV and Drive data a published app has saved.
 
 The CLI is a Rust Clap application. Prefer its self-documenting command tree over recalled syntax:
 
@@ -15,9 +15,10 @@ maypop app --help
 maypop ai --help
 maypop mcp --help
 maypop profile --help
+maypop data --help
 ```
 
-The public workflow consists of `auth`, `init`, `publish`, `migrate`, `info`, `app apply`, `status`, `ai`, `mcp`, and `profile`. Do not teach hidden or maintainer-only commands as normal app workflows.
+The public workflow consists of `auth`, `init`, `publish`, `migrate`, `info`, `app apply`, `status`, `ai`, `mcp`, `profile`, and `data`. Do not teach hidden or maintainer-only commands as normal app workflows.
 
 ## Install the CLI
 
@@ -275,18 +276,12 @@ Available initial visibility values are `private`, `unlisted`, and `public`; the
 1. Initializes a Git repository when necessary.
 2. Creates an unpublished app identity on Maypop.
 3. Records the app id and API URL in repository-local Git configuration.
-4. Sets `origin` to the app repository at `/git/apps/{appId}` on the API host, with a repository-local `maypop git-credential` helper.
+4. Adds a `maypop` remote at `/git/apps/{appId}` on the API host, and a repository-local `maypop git-credential` helper for that URL. It leaves `origin` alone.
 5. Creates or validates `maypop.toml` and detects the framework adapter.
 
-It refuses to continue if the repository is already attached to a Maypop app or already has an `origin` remote. Never delete or overwrite an existing remote automatically. If the user wants to retain a GitHub remote, inspect it first and offer to rename it deliberately, for example:
+It refuses to continue if the repository is already attached to a Maypop app or already has a `maypop` remote. It does not change `origin`. Never delete or overwrite an existing remote to make room for it.
 
-```sh
-git remote -v
-git remote rename origin github
-maypop init
-```
-
-After initialization, Maypop remains `origin`, because `maypop publish` verifies and pushes that remote. A separate `github` remote can still be used for GitHub. Renaming remotes changes local repository configuration, so obtain permission first.
+`maypop publish` pushes through whichever remote points at the app repository, matched by URL, and does not set the branch's upstream. `origin` can stay on GitHub.
 
 Initialization does not publish a version. Commit the files normally before publishing.
 
@@ -363,11 +358,11 @@ maypop publish --changelog "Add shared collections"
 
 Publication operates on the exact committed Git `HEAD`. It:
 
-1. Verifies the repository is connected to the expected Maypop app. If `origin` is still the older per-user remote, it is rewritten to `/git/apps/{appId}` before the clean-tree check, build, and push. There is no flag to keep the old remote. A later failure (dirty tree, bad HEAD, failed build, or rejected push) leaves `origin` on the app repository; do not point it back at the per-user URL and do not `git push --force`. `maypop migrate` does that move and push without publishing a version.
+1. Verifies the repository is connected to the expected Maypop app and finds the remote whose URL is `/git/apps/{appId}`. The remote can have any name, so `origin` can stay elsewhere. If a remote is still the older per-user URL, that remote is moved to `/git/apps/{appId}` before the clean-tree check, build, and push. There is no flag to keep the old URL. A later failure leaves that remote on the app repository; do not point it back at the per-user URL and do not `git push --force`. `maypop migrate` does that move and push without publishing a version.
 2. Refuses a dirty worktree; commit or stash first.
 3. Builds using `[build]`.
 4. Refuses a build that modifies tracked files.
-5. Pushes `HEAD` to the app repository's `main` branch as a normal Git pack. It does not push to the older remote.
+5. Pushes `HEAD` to that remote's `main` branch as a normal Git pack. It does not set the branch's upstream, and it does not push to a remote that points somewhere else.
 6. Uploads and validates the static build output.
 7. Records the source commit and bundle as the next immutable app version.
 
@@ -428,7 +423,44 @@ git status --short
 git remote -v
 ```
 
-Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state.
+Then explain the intended change. `auth`, `init`, `app apply`, `ai`, and `publish` require explicit user authorization because they create credentials, alter repository configuration, consume credits, write generated files, or change remote Maypop state. A `maypop data` write or delete prints a dry run and changes nothing. Never pass `--yes` on your own. The next section says when.
+
+## Inspect and change saved data
+
+`maypop data` lists, reads, writes, and deletes KV entries and Drive files in a published app. Use it to see what real users saved, to debug why saved data looks wrong, or to check data after a schema change. Do not use it to test the local development server. Data created there lives in the framework sandbox; read [sdk-and-publishing.md](sdk-and-publishing.md) and test with that host.
+
+Never pass `--yes` on your own. `kv set`, `kv rm`, `drive put`, and `drive rm` print the change and leave the app unchanged unless `--yes` is present. Run the command without it. The dry runs of `kv set` and `kv rm` print the stored value, so warn the user before you show that output. Pass `--yes` only for the exact command the user approved after seeing its dry run. A different key, file, or value, or a retry after a failure, needs a new dry run and a new go-ahead. A write or delete names one key or one file. There is no bulk change and no prefix delete.
+
+The command shipped in CLI v0.6.0. If `maypop data --help` does not list it, the installed CLI is older. Check `maypop status` first; the selected profile has to be authenticated. Run the command inside the app repository, or pass `--app <id>`. Outside an initialized repository, `--app` is required. `--app` and `--json` belong to `maypop data` and apply to every subcommand. `--json` prints machine-readable JSON. `drive get --json` prints the file's metadata and a download `url`, not the bytes. `--output` writes the bytes and, with `--json`, still prints that metadata. Do not paste the URL.
+
+Only the app's owner or an app admin can run it. A group the app is published to never grants that access. A 403 means this account can reach the app but is not its owner or an app admin (a non-admin member, for example), or the credential is one a Studio sandbox holds. A 404 from a list means the app does not exist or this account has no access to it. A 404 on one key or file means that entry is absent, or this account has no access to the app. The CLI cannot tell those two apart, so check with a list first.
+
+List keys or file names before reading a value. Fetch one entry only when you need that entry.
+
+```sh
+maypop data kv ls --prefix notes/ --limit 20
+maypop data kv get theme
+maypop data drive ls --prefix images/
+maypop data drive get images/hero.png --output "$TMPDIR/hero.png"
+```
+
+`kv ls` and `drive ls` return one page. `--prefix` limits the listing to keys or names that start with it, and the page is cut after that filter, so a page holds up to `--limit` matches. `--limit` is from 1 to 100; the server default is 50. Pass `--cursor` from the previous page to continue. Without `--json` the CLI prints `Next cursor:`. With `--json` the field is `nextCursor`.
+
+Never copy values or file contents that other people saved into code, commits, fixtures, tests, or `maypop.toml`. Show the user only what the task needs. A list of keys, sizes, and authors is usually enough. `drive get` writes the file bytes, so point `--output` at a path outside the repository, such as a temporary directory. The dry runs of `kv set` and `kv rm` print the stored value; warn the user before you show that output, and do not copy it.
+
+```sh
+maypop data kv set theme '{"color":"green"}'
+maypop data kv set config @config.json
+maypop data kv rm theme
+maypop data drive put ./hero.png images/hero.png
+maypop data drive rm images/hero.png
+```
+
+`kv set` takes a JSON value, or `@file` containing JSON. A text value is a JSON string, so keep its quotes through the shell: `'"hello"'`. A bare `hello` is not JSON and the command fails. `kv rm` deletes that one key.
+
+`drive put` adds a row. It does not replace one. The name defaults to the local file's name. When that name already exists, the new row is added beside the earlier ones. They still appear in `drive ls`, and `drive get` returns the newest. `drive rm` removes every live row with that exact name. Its dry run says how many, and it cannot drop just one of them. Replacing a file means asking the user which result they want before any dry run. The dry run does not check policy, quota, or conflicts. Those can still reject the filing after `--yes`, and the file is uploaded before that check. The error names the upload's cid. Report the rejection and do not retry it.
+
+An agent running in a Studio sandbox has a read-only credential. Listing, reading, and a dry run still work. `--yes` returns 403 and leaves the app unchanged. Tell the user to run the write on their own account.
 
 ## App source references
 
