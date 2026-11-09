@@ -23,7 +23,8 @@ The skill gives an AI coding harness the platform model it needs to answer a dec
 
 ## Install
 
-The recommended installer is the community-maintained
+For production-promoted versions, use the [manual stable installation](#manual-installation).
+For a managed installation that tracks development on `main`, use the community-maintained
 [`skills` CLI](https://github.com/vercel-labs/skills). It discovers the
 `maypop-app` skill at this repository's root and can keep the installation up
 to date.
@@ -70,6 +71,10 @@ npx skills add basilica-digital/maypop-skill \
 
 ### Manual installation
 
+The first production promotion creates `stable`. Until then, this command
+is unavailable; replace `--branch stable` with an existing release tag to
+install a specific version.
+
 To install the stable version without the third-party installer, clone the
 `stable` branch into the personal skill directory for the harness. For Codex:
 
@@ -80,15 +85,30 @@ git clone --branch stable --depth 1 \
   ~/.agents/skills/maypop-app
 ```
 
-For Claude Code, use `~/.claude/skills/maypop-app` instead. Manually cloned
-copies are updated with Git rather than `npx skills update`.
+For Claude Code, use `~/.claude/skills/maypop-app` instead.
+
+The `stable` branch may move backwards during a rollback. To update a manual
+stable installation, fetch and reset it to the promoted version. This discards
+local changes to tracked files in the skill directory:
+
+```sh
+git -C ~/.agents/skills/maypop-app fetch --depth 1 origin \
+  +refs/heads/stable:refs/remotes/origin/stable && \
+  git -C ~/.agents/skills/maypop-app reset --hard origin/stable
+```
+
+Use `~/.claude/skills/maypop-app` in both commands for Claude Code.
 
 ### Release channels
 
-Version tags (`v*`) create GitHub pre-releases for testing. They do not change
-the stable installation. A version is promoted to a full release and marked
-as latest only when it is deployed to production; the `stable` branch then
-moves to that promoted tag.
+Managed `npx skills add` installations and `npx skills update` follow `main`,
+which can include changes that have not been promoted. Manual installations
+from `stable` follow production promotions.
+
+Version tag (`v*`) pushes create GitHub pre-releases for testing if a release
+does not already exist. They do not move `stable`. A version is promoted to
+a full release and marked as latest only when it is deployed to production;
+the `stable` branch then moves to that promoted tag.
 
 To pin a specific version manually, replace `--branch stable` with its tag.
 
