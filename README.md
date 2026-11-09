@@ -68,20 +68,29 @@ npx skills add basilica-digital/maypop-skill \
   --agent codex
 ```
 
-### Pinned manual installation
+### Manual installation
 
-To pin an exact release without the third-party installer, clone the tag into
-the personal skill directory for the harness. For Codex:
+To install the stable version without the third-party installer, clone the
+`stable` branch into the personal skill directory for the harness. For Codex:
 
 ```sh
 mkdir -p ~/.agents/skills
-git clone --branch v1.9.0 --depth 1 \
+git clone --branch stable --depth 1 \
   https://github.com/basilica-digital/maypop-skill.git \
   ~/.agents/skills/maypop-app
 ```
 
 For Claude Code, use `~/.claude/skills/maypop-app` instead. Manually cloned
 copies are updated with Git rather than `npx skills update`.
+
+### Release channels
+
+Version tags (`v*`) create GitHub pre-releases for testing. They do not change
+the stable installation. A version is promoted to a full release and marked
+as latest only when it is deployed to production; the `stable` branch then
+moves to that promoted tag.
+
+To pin a specific version manually, replace `--branch stable` with its tag.
 
 ## Use
 
