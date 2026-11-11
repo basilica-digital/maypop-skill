@@ -8,6 +8,26 @@ license: Apache-2.0
 
 Help users understand and build for Maypop without confusing it with a general-purpose application server.
 
+## Small edits to an existing app
+
+For one precise colour, copy, spacing, or show/hide change to an existing
+working app, reuse the existing code and conversation. Read only the target's
+immediate source when it is not already in context, make a targeted edit,
+and preserve unrelated content, behaviour, saved data and listing. Keep the
+existing thumbnail through publication when it still represents the visible
+result. If the edit makes the cover inaccurate, follow the thumbnail step below.
+Skip unrelated SDK declarations and platform references for this route.
+
+Verify the requested result with one focused check. Keep screenshots when
+contrast, wrapping, responsive layout or another visual judgment needs them.
+Avoid a separate production build when the publishing workflow already builds
+the app. Finish once the edit is verified and any authorized publication succeeds.
+
+Use the full routing below for unclear targets, redesigns, new behaviour or
+state, dependencies, SDK, data, authentication, policies, storage or architecture.
+If inspection or the focused check reveals a problem, verify the affected flow
+before finishing. A short prompt alone does not qualify for the small-edit route.
+
 ## Start with the platform model
 
 For conceptual questions, lead with this definition in language appropriate to the user:
@@ -23,7 +43,7 @@ Do not call every Maypop app “full stack.” A standalone static app may use n
 - For an explanation, distinguish app code, the Maypop host, and Maypop platform services. Correct misconceptions directly.
 - For compatibility assessment, inspect the supplied project and classify it as already compatible, convertible, or dependent on a separate backend.
 - For interface or product design, read [references/host-environment.md](references/host-environment.md) so the app complements Maypop's authentication and surrounding chrome instead of duplicating them.
-- For architecture, implementation, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Target `@basilica-digital/maypop-sdk` v1.4 and update an older declared dependency with the project's package manager before relying on v1.4 behavior. Prefer its framework host for Vite, Rsbuild, and Next.js projects that need local data, authenticated AI, notification inspection, or a connected app session before deployment.
+- For architecture, implementation beyond the small-edit route, or local SDK testing, also read [references/sdk-and-publishing.md](references/sdk-and-publishing.md). Target `@basilica-digital/maypop-sdk` v1.4 and update an older declared dependency with the project's package manager before relying on v1.4 behavior. Prefer its framework host for Vite, Rsbuild, and Next.js projects that need local data, authenticated AI, notification inspection, or a connected app session before deployment.
 - For using another Maypop app as a reference, read [references/app-references.md](references/app-references.md). Inspect imported source with filesystem tools and respect any requested aspect.
 - For CLI installation, authentication, initialization, `maypop.toml`, metadata, profiles, AI media generation, publishing, or KV and Drive data saved in a published app, read [references/cli.md](references/cli.md). Check the selected session with `maypop status` before proposing `maypop auth`; authenticate only when status reports no valid signed-in account. Use the installed command's `--help` output as the final authority on available flags. `maypop data` reads and changes a published app's saved data. Never pass `--yes` on your own: only for the exact command the user approved after seeing its dry run, and run a new dry run for any change. Local data stays on the framework host in [references/sdk-and-publishing.md](references/sdk-and-publishing.md).
 - When the harness has no native image, audio, or video generator, use authenticated `maypop ai` commands as the fallback for deliberate app assets. Generation consumes credits and changes a local file, so require the user's authorization, run each paid request only once, and never retry it automatically.
@@ -40,7 +60,7 @@ Write metadata for the finished app after its purpose, audience, scope, and main
 
 ## Ship a deliberate thumbnail
 
-Treat the thumbnail as part of the app's identity, not optional polish. When creating, preparing, or publishing an app, use an available image-generation tool to create bespoke cover art unless the user supplied an image or asked not to generate one. If the harness has no native image generator and the authenticated CLI is installed, `maypop ai image` is the fallback. A placeholder, generic icon, or incidental UI screenshot leaves the app looking unfinished.
+Treat the thumbnail as part of the app's identity, not optional polish. For a literal edit to an existing app, preserve its listing metadata and thumbnail through publication when the cover still represents the visible result. For creation, preparation or publication beyond that case, use an available image-generation tool to create bespoke cover art unless the user supplied an image or asked not to generate one. If the harness has no native image generator and the authenticated CLI is installed, `maypop ai image` is the fallback. A placeholder, generic icon, or incidental UI screenshot leaves the app looking unfinished.
 
 Compose the image as a full-bleed 4:3 cover. Prefer a 2048x1536 source when the generator supports exact dimensions; Maypop's browser import flow caps the longest edge at 1200 pixels, making 1200x900 the corresponding optimized 4:3 asset size. Keep one clear focal point near the center because the same art can appear in square app icons and responsive wide heroes. Extend the background to every edge, leave crop-safe breathing room around the subject, and avoid text, lettering, logos, borders, and UI screenshots.
 
