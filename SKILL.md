@@ -13,7 +13,9 @@ Help users understand and build for Maypop without confusing it with a general-p
 For one precise colour, copy, spacing, or show/hide change to an existing
 working app, reuse the existing code and conversation. Read only the target's
 immediate source when it is not already in context, make a targeted edit,
-and preserve unrelated content, behaviour, saved data, listing and thumbnail.
+and preserve unrelated content, behaviour, saved data and listing. Keep the
+existing thumbnail through publication when it still represents the visible
+result. If the edit makes the cover inaccurate, follow the thumbnail step below.
 Skip unrelated SDK declarations and platform references for this route.
 
 Verify the requested result with one focused check. Keep screenshots when
@@ -58,7 +60,7 @@ Write metadata for the finished app after its purpose, audience, scope, and main
 
 ## Ship a deliberate thumbnail
 
-Treat the thumbnail as part of the app's identity, not optional polish. When creating, preparing, or publishing an app, use an available image-generation tool to create bespoke cover art unless the user supplied an image or asked not to generate one. If the harness has no native image generator and the authenticated CLI is installed, `maypop ai image` is the fallback. A placeholder, generic icon, or incidental UI screenshot leaves the app looking unfinished.
+Treat the thumbnail as part of the app's identity, not optional polish. For a literal edit to an existing app, preserve its listing metadata and thumbnail through publication when the cover still represents the visible result. For creation, preparation or publication beyond that case, use an available image-generation tool to create bespoke cover art unless the user supplied an image or asked not to generate one. If the harness has no native image generator and the authenticated CLI is installed, `maypop ai image` is the fallback. A placeholder, generic icon, or incidental UI screenshot leaves the app looking unfinished.
 
 Compose the image as a full-bleed 4:3 cover. Prefer a 2048x1536 source when the generator supports exact dimensions; Maypop's browser import flow caps the longest edge at 1200 pixels, making 1200x900 the corresponding optimized 4:3 asset size. Keep one clear focal point near the center because the same art can appear in square app icons and responsive wide heroes. Extend the background to every edge, leave crop-safe breathing room around the subject, and avoid text, lettering, logos, borders, and UI screenshots.
 
