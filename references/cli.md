@@ -100,6 +100,7 @@ Once the CLI is authenticated, continue with the project workflow:
 ```sh
 cd my-app
 maypop init
+# Set [app].content_rating in maypop.toml for the app's content before publishing.
 git add .
 git commit -m "feat: create Maypop app"
 maypop publish
@@ -294,6 +295,7 @@ The configuration has two independent concerns:
 name = "My app"
 description = "What this app does"
 visibility = "private"
+content_rating = "general"
 link_access = "request"
 allow_remixing = true
 tags = []
@@ -308,6 +310,7 @@ framework = "vite"
 - `name`: use the agreed brand name, or a few concrete words in sentence case; do not silently invent a brand.
 - `description`: aim for one concise sentence of roughly 140 characters covering what the app does and its clearest value or audience.
 - `visibility`: `private`, `unlisted`, or `public`.
+- `content_rating`: `mature` for apps containing sexual content, graphic violence, gambling, drugs, or alcohol; `general` otherwise. Set it before publishing.
 - `link_access`: `request`, `view`, or `use`; the backend validates it together with visibility.
 - `allow_remixing`: whether others may create a new app derived from this one.
 - `tags`: use at most one current store category id: `education`, `social`, `productivity`, `games`, `entertainment`, `design`, `music`, `family`, `travel`, `sports`, or `fitness`. Maypop reads the first tag as the category, so do not add invented or SEO-style tags.
@@ -315,13 +318,15 @@ framework = "vite"
 
 `maypop init` starts private and unlisted apps at `link_access = "request"`; public apps start at `link_access = "view"`. Not every reach pair is valid—for example, a publicly listed app cannot use `request` link access.
 
-Editing `[app]` does not change Maypop by itself, and `maypop publish` does not apply it implicitly. Apply the fields explicitly:
+Editing `[app]` does not change Maypop by itself. `maypop publish` sends the content rating before publication, using `general` if the field is omitted. A later publication failure can still leave the app's rating changed, including to `general` when omitted. The server may retain a different effective rating; inspect the app rather than assuming the declaration took effect. Publishing does not apply the other `[app]` fields. Apply metadata explicitly:
 
 ```sh
 maypop app apply
 ```
 
 Only fields present in `[app]` are sent; omitted fields remain unchanged. If a thumbnail is configured, `app apply` uploads it before updating the app. This command mutates remote app metadata, so review the file and obtain authorization first.
+
+An older server may omit the content rating from its response. The CLI warns and continues in that case; the warning does not confirm that the rating was applied.
 
 Inspect the connected remote app without changing it:
 
@@ -366,7 +371,7 @@ Publication operates on the exact committed Git `HEAD`. It:
 6. Uploads and validates the static build output.
 7. Records the source commit and bundle as the next immutable app version.
 
-Do not commit, stash, change remotes, or publish merely to get past a failed precondition without the user's approval. Fix the underlying build or configuration, then retry. Remember that publishing code and applying `[app]` metadata are separate operations.
+Do not commit, stash, change remotes, or publish merely to get past a failed precondition without the user's approval. Fix the underlying build or configuration, then retry. Publishing sends the content rating; applying the other `[app]` metadata remains a separate operation.
 
 ## Profiles are optional
 
