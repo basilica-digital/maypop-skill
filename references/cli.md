@@ -326,6 +326,8 @@ maypop app apply
 
 Only fields present in `[app]` are sent; omitted fields remain unchanged. If a thumbnail is configured, `app apply` uploads it before updating the app. This command mutates remote app metadata, so review the file and obtain authorization first.
 
+An older server may omit the content rating from its response. The CLI warns and continues in that case; the warning does not confirm that the rating was applied.
+
 Inspect the connected remote app without changing it:
 
 ```sh
