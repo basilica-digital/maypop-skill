@@ -318,7 +318,7 @@ framework = "vite"
 
 `maypop init` starts private and unlisted apps at `link_access = "request"`; public apps start at `link_access = "view"`. Not every reach pair is valid—for example, a publicly listed app cannot use `request` link access.
 
-Editing `[app]` does not change Maypop by itself. `maypop publish` sends the content rating before publication, using `general` if the field is omitted. It does not apply the other `[app]` fields. Apply metadata explicitly:
+Editing `[app]` does not change Maypop by itself. `maypop publish` sends the content rating before publication, using `general` if the field is omitted. A later publication failure can still leave the app's rating changed, including to `general` when omitted. The server may retain a different effective rating; inspect the app rather than assuming the declaration took effect. Publishing does not apply the other `[app]` fields. Apply metadata explicitly:
 
 ```sh
 maypop app apply
