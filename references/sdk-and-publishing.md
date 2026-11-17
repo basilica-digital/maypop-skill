@@ -35,6 +35,14 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 | `maypop.share` | Host share card holding a deep link | Unavailable in the Studio preview of an unpublished draft |
 | `maypop.notify` | Maypop and push notifications | Targets only people in the app's audience and is rate-limited |
 
+## Integration availability
+
+Discover linked integrations and check their availability before offering a dependent action. Use the availability information and reason exposed by the installed SDK; inspect its declarations for the exact API and use a version that supports availability reporting. An integration can become unavailable after discovery, so also handle the SDK's typed unavailable error when listing or calling tools. Treat other errors separately.
+
+When an integration is unavailable, explain which feature is affected in plain language and suggest asking an app admin to reconnect the integration or link a replacement. For example: “This feature is unavailable because its integration is disconnected. Ask an app admin to reconnect it or link a replacement.” Keep unrelated features usable, and check availability again when the person retries. Never ask anyone for passwords, API keys, tokens, or other credentials; connection and authorization belong in Maypop's integration flow.
+
+Availability reasons describe the integration's state, not its owner's identity or account details. Do not infer or expose those details. A retained integration need can also reflect an intentional unlink, so avoid presenting every reason as a service outage.
+
 ## Deep links
 
 A deep link opens the app on one screen: a list, a record, a result. The app is always loaded at its entry file; the screen arrives as a site-relative path such as `/item/42`, delivered in the iframe's `location.hash` and as `maypop.launchPath`. Opening the link needs the same access as opening the app. An app that hands out links imports the SDK even when it uses nothing else from it; without it there is no `link.to`, and any fallback built from `location` copies the preview's own origin, which nobody else can open.
