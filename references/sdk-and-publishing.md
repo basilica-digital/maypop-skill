@@ -37,7 +37,9 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 
 ## Integration availability
 
-Discover linked integrations and check their availability before offering a dependent action. Use the availability information and reason exposed by the installed SDK; inspect its declarations for the exact API and use a version that supports availability reporting. An integration can become unavailable after discovery, so also handle the SDK's typed unavailable error when listing or calling tools. Treat other errors separately.
+Use SDK v1.9.0 or later and call `maypop.mcp.discover()` after `maypop.ready()` to check integration availability before offering a dependent action. Its `available` entries have an `id` and may have a service-kind `need`; its `unavailable` entries have a `need` and a `reason`. A need identifies a catalog toolkit or a custom server host, and an available entry's need can be absent. Do not assume discovery provides an account name or a label for every available entry.
+
+Availability can change after discovery. Handle failures when listing or calling tools as well: import `isIntegrationUnavailableError` from `@basilica-digital/maypop-sdk` to recognize the typed error, whose code is `maypop/integration-unavailable`. Treat other errors separately. Inspect the installed SDK declarations for the current API.
 
 When an integration is unavailable, explain which feature is affected in plain language and suggest asking an app admin to reconnect the integration or link a replacement. For example: “This feature is unavailable because its integration is disconnected. Ask an app admin to reconnect it or link a replacement.” Keep unrelated features usable, and check availability again when the person retries. Never ask anyone for passwords, API keys, tokens, or other credentials; connection and authorization belong in Maypop's integration flow.
 
