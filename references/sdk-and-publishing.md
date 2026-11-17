@@ -35,6 +35,16 @@ Exact types and signatures are defined by the current SDK declarations. Before i
 | `maypop.share` | Host share card holding a deep link | Unavailable in the Studio preview of an unpublished draft |
 | `maypop.notify` | Maypop and push notifications | Targets only people in the app's audience and is rate-limited |
 
+## Integration availability
+
+Use SDK v1.9.0 or later and call `maypop.mcp.discover()` after `maypop.ready()` to check integration availability before offering a dependent action. Its `available` entries have an `id` and may have a service-kind `need`; its `unavailable` entries have a `need` and a `reason`. A need identifies a catalog toolkit or a custom server host, and an available entry's need can be absent. Do not assume discovery provides an account name or a label for every available entry.
+
+Availability can change after discovery. Handle failures when listing or calling tools as well: import `isIntegrationUnavailableError` from `@basilica-digital/maypop-sdk` to recognize the typed error, whose code is `maypop/integration-unavailable`. Treat other errors separately. Inspect the installed SDK declarations for the current API.
+
+When an integration is unavailable, explain which feature is affected in plain language and suggest asking an app admin to reconnect the integration or link a replacement. For example: “This feature is unavailable because its integration is disconnected. Ask an app admin to reconnect it or link a replacement.” Keep unrelated features usable, and check availability again when the person retries. Never ask anyone for passwords, API keys, tokens, or other credentials; connection and authorization belong in Maypop's integration flow.
+
+Availability reasons describe the integration's state, not its owner's identity or account details. Do not infer or expose those details. A retained integration need can also reflect an intentional unlink, so avoid presenting every reason as a service outage.
+
 ## Deep links
 
 A deep link opens the app on one screen: a list, a record, a result. The app is always loaded at its entry file; the screen arrives as a site-relative path such as `/item/42`, delivered in the iframe's `location.hash` and as `maypop.launchPath`. Opening the link needs the same access as opening the app. An app that hands out links imports the SDK even when it uses nothing else from it; without it there is no `link.to`, and any fallback built from `location` copies the preview's own origin, which nobody else can open.
